@@ -536,8 +536,8 @@ let earnedXp = LS.get("earnedXp", 0);
 let categories = LS.get("categories", null);
 let tasks = LS.get("tasks", null);
 let rewards = LS.get("rewards", null);
-let doneMap = LS.get("doneMap", {}); // { [taskId]: {date:"..."} }
-
+let doneMap[task.id] = { date: todayKey, doneAt: Date.now() };
+LS.set("doneMap", doneMap);
 if (!Array.isArray(categories)) { categories = defaultCategories; LS.set("categories", categories); }
 if (!Array.isArray(tasks)) { tasks = defaultTasks; LS.set("tasks", tasks); }
 if (!Array.isArray(rewards)) { rewards = defaultRewards; LS.set("rewards", rewards); }
@@ -871,5 +871,6 @@ updateHeaderUI();
 </body>
 
 </html>
+
 
 
