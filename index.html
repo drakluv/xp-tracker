@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Quest Tracker</title>
+
 <style>
   :root{
     --bg:#f3f4f6;
@@ -60,12 +61,6 @@
     min-width:0;
     display:flex;
     flex-direction:column;
-    gap:8px;
-  }
-  .titleRow{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
     gap:10px;
   }
   .appTitle{
@@ -74,6 +69,7 @@
     letter-spacing: 0.2px;
     margin:0;
   }
+
   .tabs{
     display:flex;
     gap:10px;
@@ -119,11 +115,12 @@
     font-weight:900;
   }
   .pill small{ opacity:0.9; font-weight:800; }
+
   .lvlRow{
     display:flex;
     align-items:center;
     gap:10px;
-    width: 280px;
+    width: 320px;
     max-width: 100%;
   }
   .lvlTag{
@@ -147,6 +144,13 @@
     height: 100%;
     background: linear-gradient(90deg,#34d399,#22c55e,#a3e635);
     transition: width 180ms ease;
+  }
+  /* 4) bar text like 30/50 */
+  .barText{
+    font-weight: 900;
+    font-size: 12px;
+    white-space:nowrap;
+    opacity: 0.95;
   }
 
   /* Menu */
@@ -185,12 +189,9 @@
     padding:10px;
     border-radius: 12px;
   }
-  .menuItem:hover{
-    background: rgba(0,0,0,0.06);
-  }
-  [data-theme="dark"] .menuItem:hover{
-    background: rgba(255,255,255,0.06);
-  }
+  .menuItem:hover{ background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
+
   .menuLink{
     display:block;
     padding:10px;
@@ -199,12 +200,9 @@
     text-decoration:none;
     font-weight: 900;
   }
-  .menuLink:hover{
-    background: rgba(0,0,0,0.06);
-  }
-  [data-theme="dark"] .menuLink:hover{
-    background: rgba(255,255,255,0.06);
-  }
+  .menuLink:hover{ background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .menuLink:hover{ background: rgba(255,255,255,0.06); }
+
   .switch{
     width: 22px;
     height: 22px;
@@ -231,7 +229,6 @@
     letter-spacing: 0.2px;
   }
 
-  /* Tasks list */
   .row{
     display:flex;
     align-items:flex-start;
@@ -241,6 +238,7 @@
     border-bottom:1px solid var(--line);
   }
   .row:last-child{ border-bottom:none; }
+
   .left{
     display:flex;
     align-items:flex-start;
@@ -264,11 +262,13 @@
     text-decoration: line-through;
     opacity: 0.55;
   }
+
   .right{
     display:flex;
     gap:8px;
     flex-shrink:0;
   }
+
   button{
     padding: 10px 12px;
     border:none;
@@ -281,6 +281,7 @@
   button.danger{
     background: linear-gradient(90deg,var(--danger),#dc2626);
   }
+
   input, select{
     width:100%;
     padding: 12px 12px;
@@ -290,6 +291,7 @@
     color: var(--text);
     outline:none;
   }
+
   .grid2{
     display:grid;
     grid-template-columns: 1fr 1fr;
@@ -300,7 +302,60 @@
     grid-template-columns: 2fr 1fr 1fr;
     gap:10px;
   }
+
   .muted{ color: var(--muted); font-size: 12px; }
+
+  /* Category blocks */
+  .catBlock{
+    border:1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .catHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom: 8px;
+  }
+  .catTitle{
+    font-weight: 900;
+    letter-spacing: 0.2px;
+  }
+
+  /* Rewards */
+  .rewardRow{
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .rewardRow:last-child{ margin-bottom:0; }
+  .rewardLeft{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    flex:1;
+    min-width:0;
+  }
+  .buyBtn{
+    min-width: 84px;
+    text-align:center;
+  }
+  .rewardGlow{
+    box-shadow: 0 0 0 2px rgba(34,197,94,.25), 0 0 22px rgba(34,197,94,.30);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 2px rgba(34,197,94,.18), 0 0 14px rgba(34,197,94,.18); }
+    50%{ box-shadow: 0 0 0 2px rgba(34,197,94,.35), 0 0 28px rgba(34,197,94,.32); }
+    100%{ box-shadow: 0 0 0 2px rgba(34,197,94,.18), 0 0 14px rgba(34,197,94,.18); }
+  }
 
   /* Daily table */
   .tableWrap{
@@ -312,7 +367,7 @@
   table{
     width:100%;
     border-collapse: collapse;
-    min-width: 820px; /* so phone can scroll horizontally */
+    min-width: 820px; /* phone scroll */
   }
   th, td{
     border-bottom:1px solid var(--line);
@@ -329,24 +384,10 @@
     color: var(--muted);
     letter-spacing: 0.3px;
   }
-  .taskCol{
-    min-width: 220px;
-    font-weight: 900;
-  }
-  .ptsCol{
-    width: 90px;
-    font-weight: 900;
-    white-space: nowrap;
-  }
-  .dayCell{
-    width: 90px;
-    text-align:center;
-  }
-  .dayCell input{
-    width: 22px;
-    height: 22px;
-    accent-color: var(--accent);
-  }
+  .taskCol{ min-width: 220px; font-weight: 900; }
+  .ptsCol{ width: 90px; font-weight: 900; white-space: nowrap; }
+  .dayCell{ width: 90px; text-align:center; }
+  .dayCell input{ width: 22px; height: 22px; accent-color: var(--accent); }
 
   @media (max-width: 720px){
     .topbarInner{ flex-direction: column; align-items: stretch; }
@@ -363,12 +404,11 @@
   <div class="topbar">
     <div class="topbarInner">
       <div class="leftTop">
-        <div class="titleRow">
-          <div class="appTitle">Quest Tracker</div>
-        </div>
+        <div class="appTitle">Quest Tracker</div>
         <div class="tabs">
           <button class="tabBtn active" id="tabTasks" onclick="setTab('tasks')">Tasks</button>
           <button class="tabBtn" id="tabDaily" onclick="setTab('daily')">Daily</button>
+          <button class="tabBtn" id="tabRewards" onclick="setTab('rewards')">Rewards</button>
         </div>
       </div>
 
@@ -380,6 +420,7 @@
         <div class="lvlRow">
           <div class="lvlTag" id="lvlTag">LVL 1</div>
           <div class="barWrap"><div class="barFill" id="barFill"></div></div>
+          <div class="barText" id="barText">0/50</div>
         </div>
 
         <div class="menuWrap">
@@ -400,9 +441,19 @@
     <!-- TASKS TAB -->
     <div id="viewTasks">
       <div class="card">
+        <h2>Task Categories</h2>
+
+        <div class="grid2" style="margin-bottom:10px;">
+          <input id="newCatName" placeholder="New category name" />
+          <button onclick="addCategory()">Add Category</button>
+        </div>
+
+        <div class="muted">Tasks are grouped by category. Add categories, then add tasks into them.</div>
+      </div>
+
+      <div class="card">
         <h2>Tasks</h2>
-        <div id="tasksList"></div>
-        <div class="muted">Check/uncheck tasks to earn/remove GP. Level is based on earned XP (lifetime), GP is spendable.</div>
+        <div id="tasksByCat"></div>
       </div>
 
       <div class="card">
@@ -410,18 +461,16 @@
         <div class="grid3">
           <input id="newTaskName" placeholder="Task name" />
           <input id="newTaskPts" type="number" placeholder="GP" />
-          <button onclick="addTask()">Add</button>
+          <select id="newTaskCat"></select>
+        </div>
+        <div style="margin-top:10px;">
+          <button onclick="addTask()">Add Task</button>
         </div>
       </div>
     </div>
 
     <!-- DAILY TAB -->
     <div id="viewDaily" style="display:none;">
-      <div class="card">
-        <h2>Daily</h2>
-        <div class="muted">Weekly table (Mon–Sun). Check a box to earn GP for that daily task on that day.</div>
-      </div>
-
       <div class="card">
         <h2>Weekly Daily Tasks</h2>
         <div class="tableWrap">
@@ -435,6 +484,23 @@
           <input id="newDailyName" placeholder="Daily task name" />
           <input id="newDailyPts" type="number" placeholder="GP per check" />
           <button onclick="addDailyRow()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REWARDS TAB -->
+    <div id="viewRewards" style="display:none;">
+      <div class="card">
+        <h2>Rewards</h2>
+        <div id="rewardsList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Add Reward</h2>
+        <div class="grid3">
+          <input id="newRewardName" placeholder="Reward name" />
+          <input id="newRewardCost" type="number" placeholder="Cost (GP)" />
+          <button onclick="addReward()">Add</button>
         </div>
       </div>
     </div>
@@ -456,7 +522,7 @@ function uuid(){
   return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
 }
 
-/* ---------- Economy ---------- 
+/* ---------- Economy ----------
 GP = spendable
 earnedXP = lifetime for level
 */
@@ -479,17 +545,27 @@ function computeLevel(xp){
 /* ---------- UI state ---------- */
 let currentTab = LS.get("tab", "tasks");
 
-/* ---------- Tasks data ---------- */
-let tasks = LS.get("tasks_v0", [
-  { id: uuid(), name: "Book Forklift Licence", pts: 5, done: false },
-  { id: uuid(), name: "Book Working at Heights", pts: 4, done: false },
-  { id: uuid(), name: "Book Confined Spaces", pts: 4, done: false }
+/* ---------- Categories + Tasks ---------- */
+let categories = LS.get("categories_v0", [
+  { id: "cat_general", name: "General" }
 ]);
 
-/* ---------- Daily weekly table data ---------- 
-We store:
+let tasks = LS.get("tasks_v0", [
+  { id: uuid(), name: "Book Forklift Licence", pts: 5, done: false, catId: "cat_general" },
+  { id: uuid(), name: "Book Working at Heights", pts: 4, done: false, catId: "cat_general" },
+  { id: uuid(), name: "Book Confined Spaces", pts: 4, done: false, catId: "cat_general" }
+]);
+
+/* ---------- Rewards ---------- */
+let rewards = LS.get("rewards_v0", [
+  { id: uuid(), name: "Coffee / snack", cost: 10 },
+  { id: uuid(), name: "Fun outing", cost: 25 },
+  { id: uuid(), name: "Big reward", cost: 50 }
+]);
+
+/* ---------- Daily weekly table data ----------
 dailyRows = [{id,name,pts}]
-dailyChecks = { weekKey: { rowId: {0:true,1:false,...6:true} } }
+dailyChecks = { weekKey: { rowId: {0:true..6:false} } }
 */
 let dailyRows = LS.get("dailyRows_v0", [
   { id: uuid(), name: "Gym", pts: 5 },
@@ -508,11 +584,10 @@ function startOfWeekMonday(d){
 }
 function weekKeyFor(d){
   const m = startOfWeekMonday(d);
-  return m.toISOString().slice(0,10); // YYYY-MM-DD of Monday
+  return m.toISOString().slice(0,10);
 }
 const weekKey = weekKeyFor(new Date());
 
-/* Ensure week structure exists */
 function ensureWeek(){
   if (!dailyChecks[weekKey]) dailyChecks[weekKey] = {};
   for (const row of dailyRows){
@@ -523,7 +598,7 @@ function ensureWeek(){
   LS.set("dailyChecks_v0", dailyChecks);
 }
 
-/* ---------- Rendering ---------- */
+/* ---------- Header ---------- */
 function renderHeader(){
   document.getElementById("gpVal").textContent = gp;
 
@@ -531,52 +606,230 @@ function renderHeader(){
   document.getElementById("lvlTag").textContent = `LVL ${lvl.level}`;
   const pct = Math.max(0, Math.min(100, (lvl.inLevel / lvl.need) * 100));
   document.getElementById("barFill").style.width = pct.toFixed(1) + "%";
+  document.getElementById("barText").textContent = `${lvl.inLevel}/${lvl.need}`;
 
   LS.set("gp", gp);
   LS.set("earnedXP", earnedXP);
 }
 
-function renderTasks(){
-  const host = document.getElementById("tasksList");
+/* ---------- Tabs ---------- */
+function setTab(tab){
+  currentTab = tab;
+  LS.set("tab", tab);
+
+  document.getElementById("viewTasks").style.display = (tab === "tasks") ? "" : "none";
+  document.getElementById("viewDaily").style.display = (tab === "daily") ? "" : "none";
+  document.getElementById("viewRewards").style.display = (tab === "rewards") ? "" : "none";
+
+  document.getElementById("tabTasks").classList.toggle("active", tab === "tasks");
+  document.getElementById("tabDaily").classList.toggle("active", tab === "daily");
+  document.getElementById("tabRewards").classList.toggle("active", tab === "rewards");
+}
+
+/* ---------- Menu ---------- */
+const menuBtn = document.getElementById("menuBtn");
+const menu = document.getElementById("menu");
+
+function setMenuOpen(open){
+  if (open){
+    menu.classList.add("open");
+    menuBtn.setAttribute("aria-expanded","true");
+  } else {
+    menu.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded","false");
+  }
+}
+menuBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setMenuOpen(!menu.classList.contains("open"));
+});
+document.addEventListener("click", () => setMenuOpen(false));
+
+/* ---------- Darkmode ---------- */
+const darkToggle = document.getElementById("darkToggle");
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  LS.set("theme", theme);
+  darkToggle.checked = (theme === "dark");
+}
+darkToggle.addEventListener("change", () => {
+  applyTheme(darkToggle.checked ? "dark" : "light");
+});
+
+/* ---------- Categories UI ---------- */
+function renderCategorySelect(){
+  const sel = document.getElementById("newTaskCat");
+  sel.innerHTML = "";
+  categories.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+function addCategory(){
+  const name = document.getElementById("newCatName").value.trim();
+  if (!name) return alert("Enter a category name.");
+
+  const id = "cat_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (categories.some(c => c.id === id)) return alert("Category already exists.");
+
+  categories.push({ id, name });
+  LS.set("categories_v0", categories);
+
+  document.getElementById("newCatName").value = "";
+  renderCategorySelect();
+  renderTasksByCategory();
+}
+
+/* ---------- Tasks ---------- */
+function renderTasksByCategory(){
+  const host = document.getElementById("tasksByCat");
   host.innerHTML = "";
 
-  tasks.forEach(t => {
+  categories.forEach(cat => {
+    const block = document.createElement("div");
+    block.className = "catBlock";
+
+    const header = document.createElement("div");
+    header.className = "catHeader";
+
+    const title = document.createElement("div");
+    title.className = "catTitle";
+    title.textContent = cat.name;
+
+    header.appendChild(title);
+    block.appendChild(header);
+
+    const catTasks = tasks.filter(t => t.catId === cat.id);
+
+    if (catTasks.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "muted";
+      empty.textContent = "No tasks in this category yet.";
+      block.appendChild(empty);
+    } else {
+      catTasks.forEach(t => {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const left = document.createElement("div");
+        left.className = "left";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "cb";
+        cb.checked = !!t.done;
+
+        const text = document.createElement("div");
+        text.className = "text";
+        text.textContent = `${t.name} (${t.pts} GP)`;
+        if (t.done) text.classList.add("done");
+
+        cb.addEventListener("change", () => {
+          if (cb.checked && !t.done){
+            gp += Number(t.pts) || 0;
+            earnedXP += Number(t.pts) || 0;
+            t.done = true;
+          } else if (!cb.checked && t.done){
+            gp -= Number(t.pts) || 0;
+            earnedXP -= Number(t.pts) || 0;
+            if (gp < 0) gp = 0;
+            if (earnedXP < 0) earnedXP = 0;
+            t.done = false;
+          }
+
+          LS.set("tasks_v0", tasks);
+          renderHeader();
+          renderTasksByCategory();
+          renderRewards(); // glow may change
+        });
+
+        left.appendChild(cb);
+        left.appendChild(text);
+
+        const right = document.createElement("div");
+        right.className = "right";
+
+        const del = document.createElement("button");
+        del.className = "danger";
+        del.textContent = "Delete";
+        del.addEventListener("click", () => {
+          if (t.done){
+            gp -= Number(t.pts) || 0;
+            earnedXP -= Number(t.pts) || 0;
+            if (gp < 0) gp = 0;
+            if (earnedXP < 0) earnedXP = 0;
+          }
+          tasks = tasks.filter(x => x.id !== t.id);
+          LS.set("tasks_v0", tasks);
+          renderHeader();
+          renderTasksByCategory();
+          renderRewards();
+        });
+
+        right.appendChild(del);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        block.appendChild(row);
+      });
+    }
+
+    host.appendChild(block);
+  });
+}
+
+function addTask(){
+  const name = document.getElementById("newTaskName").value.trim();
+  const pts = parseInt(document.getElementById("newTaskPts").value, 10);
+  const catId = document.getElementById("newTaskCat").value;
+
+  if (!name || Number.isNaN(pts)) return alert("Add task name + GP.");
+  if (!catId) return alert("Choose a category.");
+
+  tasks.push({ id: uuid(), name, pts, done:false, catId });
+  LS.set("tasks_v0", tasks);
+
+  document.getElementById("newTaskName").value = "";
+  document.getElementById("newTaskPts").value = "";
+  renderTasksByCategory();
+}
+
+/* ---------- Rewards ---------- */
+function renderRewards(){
+  const host = document.getElementById("rewardsList");
+  host.innerHTML = "";
+
+  rewards.forEach(r => {
     const row = document.createElement("div");
-    row.className = "row";
+    row.className = "rewardRow";
+    if (gp >= Number(r.cost)) row.classList.add("rewardGlow");
 
     const left = document.createElement("div");
-    left.className = "left";
+    left.className = "rewardLeft";
 
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.className = "cb";
-    cb.checked = !!t.done;
+    const buy = document.createElement("button");
+    buy.className = "buyBtn";
+    buy.textContent = "Buy";
+    buy.addEventListener("click", () => {
+      const cost = Number(r.cost) || 0;
+      if (gp >= cost){
+        gp -= cost; // GP only, level stays (earnedXP unchanged)
+        renderHeader();
+        renderRewards();
+        alert(`Claimed: ${r.name}`);
+      } else {
+        alert("Not enough GP.");
+      }
+    });
 
     const text = document.createElement("div");
     text.className = "text";
-    text.textContent = `${t.name} (${t.pts} GP)`;
-    if (t.done) text.classList.add("done");
+    text.textContent = `${r.name} (Cost: ${r.cost} GP)`;
 
-    cb.addEventListener("change", () => {
-      // allow uncheck (mistake safe)
-      if (cb.checked && !t.done){
-        gp += Number(t.pts) || 0;
-        earnedXP += Number(t.pts) || 0;
-        t.done = true;
-      } else if (!cb.checked && t.done){
-        gp -= Number(t.pts) || 0;
-        earnedXP -= Number(t.pts) || 0;
-        if (gp < 0) gp = 0;
-        if (earnedXP < 0) earnedXP = 0;
-        t.done = false;
-      }
-      LS.set("tasks_v0", tasks);
-      renderHeader();
-      renderTasks();
-      // daily doesn’t depend, but keep consistent
-    });
-
-    left.appendChild(cb);
+    left.appendChild(buy);
     left.appendChild(text);
 
     const right = document.createElement("div");
@@ -586,17 +839,9 @@ function renderTasks(){
     del.className = "danger";
     del.textContent = "Delete";
     del.addEventListener("click", () => {
-      // If deleting a done task, reverse GP/XP so you don't keep free points.
-      if (t.done){
-        gp -= Number(t.pts) || 0;
-        earnedXP -= Number(t.pts) || 0;
-        if (gp < 0) gp = 0;
-        if (earnedXP < 0) earnedXP = 0;
-      }
-      tasks = tasks.filter(x => x.id !== t.id);
-      LS.set("tasks_v0", tasks);
-      renderHeader();
-      renderTasks();
+      rewards = rewards.filter(x => x.id !== r.id);
+      LS.set("rewards_v0", rewards);
+      renderRewards();
     });
 
     right.appendChild(del);
@@ -607,6 +852,20 @@ function renderTasks(){
   });
 }
 
+function addReward(){
+  const name = document.getElementById("newRewardName").value.trim();
+  const cost = parseInt(document.getElementById("newRewardCost").value, 10);
+  if (!name || Number.isNaN(cost)) return alert("Enter reward name + cost.");
+
+  rewards.push({ id: uuid(), name, cost });
+  LS.set("rewards_v0", rewards);
+
+  document.getElementById("newRewardName").value = "";
+  document.getElementById("newRewardCost").value = "";
+  renderRewards();
+}
+
+/* ---------- Daily ---------- */
 function renderDailyTable(){
   ensureWeek();
 
@@ -625,12 +884,10 @@ function renderDailyTable(){
   dailyRows.forEach(row => {
     const tr = document.createElement("tr");
 
-    // Task name
     const tdName = document.createElement("td");
     tdName.className = "taskCol";
     tdName.textContent = row.name;
 
-    // Points
     const tdPts = document.createElement("td");
     tdPts.className = "ptsCol";
     tdPts.textContent = `${row.pts}`;
@@ -638,7 +895,6 @@ function renderDailyTable(){
     tr.appendChild(tdName);
     tr.appendChild(tdPts);
 
-    // 7 day checkboxes
     for (let i=0;i<7;i++){
       const td = document.createElement("td");
       td.className = "dayCell";
@@ -664,14 +920,13 @@ function renderDailyTable(){
 
         LS.set("dailyChecks_v0", dailyChecks);
         renderHeader();
-        // keep table state
+        renderRewards();
       });
 
       td.appendChild(cb);
       tr.appendChild(td);
     }
 
-    // Delete row
     const tdDel = document.createElement("td");
     tdDel.style.textAlign = "right";
 
@@ -679,7 +934,6 @@ function renderDailyTable(){
     del.className = "danger";
     del.textContent = "Delete";
     del.addEventListener("click", () => {
-      // Reverse any checked GP for this week row
       const checks = dailyChecks[weekKey][row.id] || {};
       let count = 0;
       for (let i=0;i<7;i++) if (checks[i]) count++;
@@ -692,7 +946,6 @@ function renderDailyTable(){
         if (earnedXP < 0) earnedXP = 0;
       }
 
-      // Remove row + its week data
       dailyRows = dailyRows.filter(r => r.id !== row.id);
       delete dailyChecks[weekKey][row.id];
 
@@ -700,6 +953,7 @@ function renderDailyTable(){
       LS.set("dailyChecks_v0", dailyChecks);
 
       renderHeader();
+      renderRewards();
       renderDailyTable();
     });
 
@@ -712,20 +966,6 @@ function renderDailyTable(){
   table.appendChild(tbody);
 }
 
-/* ---------- Actions ---------- */
-function addTask(){
-  const name = document.getElementById("newTaskName").value.trim();
-  const pts = parseInt(document.getElementById("newTaskPts").value, 10);
-  if (!name || Number.isNaN(pts)) return alert("Add task name + GP.");
-
-  tasks.push({ id: uuid(), name, pts, done:false });
-  LS.set("tasks_v0", tasks);
-
-  document.getElementById("newTaskName").value = "";
-  document.getElementById("newTaskPts").value = "";
-  renderTasks();
-}
-
 function addDailyRow(){
   const name = document.getElementById("newDailyName").value.trim();
   const pts = parseInt(document.getElementById("newDailyPts").value, 10);
@@ -735,7 +975,6 @@ function addDailyRow(){
   dailyRows.push(row);
   LS.set("dailyRows_v0", dailyRows);
 
-  // initialize week check data
   ensureWeek();
   dailyChecks[weekKey][row.id] = { 0:false,1:false,2:false,3:false,4:false,5:false,6:false };
   LS.set("dailyChecks_v0", dailyChecks);
@@ -745,57 +984,15 @@ function addDailyRow(){
   renderDailyTable();
 }
 
-/* ---------- Tabs ---------- */
-function setTab(tab){
-  currentTab = tab;
-  LS.set("tab", tab);
-
-  document.getElementById("viewTasks").style.display = (tab === "tasks") ? "" : "none";
-  document.getElementById("viewDaily").style.display = (tab === "daily") ? "" : "none";
-
-  document.getElementById("tabTasks").classList.toggle("active", tab === "tasks");
-  document.getElementById("tabDaily").classList.toggle("active", tab === "daily");
-}
-
-/* ---------- Menu ---------- */
-const menuBtn = document.getElementById("menuBtn");
-const menu = document.getElementById("menu");
-
-function setMenuOpen(open){
-  if (open){
-    menu.classList.add("open");
-    menuBtn.setAttribute("aria-expanded","true");
-  } else {
-    menu.classList.remove("open");
-    menuBtn.setAttribute("aria-expanded","false");
-  }
-}
-
-menuBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  setMenuOpen(!menu.classList.contains("open"));
-});
-
-document.addEventListener("click", () => setMenuOpen(false));
-
-/* ---------- Darkmode ---------- */
-const darkToggle = document.getElementById("darkToggle");
-
-function applyTheme(theme){
-  document.documentElement.setAttribute("data-theme", theme);
-  LS.set("theme", theme);
-  darkToggle.checked = (theme === "dark");
-}
-darkToggle.addEventListener("change", () => {
-  applyTheme(darkToggle.checked ? "dark" : "light");
-});
-
 /* ---------- Init ---------- */
 applyTheme(LS.get("theme", "light"));
 setTab(currentTab);
+
 renderHeader();
-renderTasks();
+renderCategorySelect();
+renderTasksByCategory();
 renderDailyTable();
+renderRewards();
 </script>
 </body>
 </html>
