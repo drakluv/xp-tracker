@@ -643,10 +643,7 @@ function renderCategories() {
     box.appendChild(list);
     root.appendChild(box);
   });
-const rec = doneMap[task.id];
-if (!task.repeatable && rec && rec.doneAt && (Date.now() - rec.doneAt >= ONE_TIME_HIDE_DELAY_MS)) {
-  return; // hide it after 5 minutes
-}
+
   renderTasks();
 }
 
@@ -874,6 +871,7 @@ updateHeaderUI();
 </body>
 
 </html>
+
 
 
 
