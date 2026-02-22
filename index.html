@@ -225,22 +225,22 @@
   .catRemove:hover{ color: var(--danger); }
 
   .task, .reward{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 10px;
-    padding: 10px 8px;
-    border-bottom: 1px solid var(--line);
-  }
+  display:flex;
+  align-items:flex-start;   /* top align */
+  justify-content:space-between;
+  gap: 10px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
   .task:last-child, .reward:last-child{ border-bottom: none; }
 
   .left{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    min-width: 0;
-    flex: 1;
-  }
+  display:flex;
+  align-items:flex-start;   /* top align checkbox with text */
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
   .right{
     display:flex;
     align-items:center;
@@ -256,12 +256,14 @@
     flex-shrink: 0;
   }
 
-  .labelText{
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-  }
+.labelText{
+  white-space: normal;      /* allow wrapping */
+  overflow: visible;        /* no clipping */
+  text-overflow: unset;     /* no "..." */
+  font-size: 14px;
+  line-height: 1.25;
+  word-break: break-word;   /* break long words */
+}
   .labelText.done{
     text-decoration: line-through;
     opacity: 0.55;
@@ -866,4 +868,5 @@ renderRewards();
 updateHeaderUI();
 </script>
 </body>
+
 </html>
