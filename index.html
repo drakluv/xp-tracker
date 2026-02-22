@@ -1,524 +1,801 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quest XP Tracker</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quest Tracker</title>
 <style>
-:root{
-  --bg:#f3f4f6;
-  --card:#ffffff;
-  --text:#111827;
-  --muted:#6b7280;
-  --line:rgba(0,0,0,0.08);
-  --primary:#7c3aed;
-  --primary2:#2563eb;
-  --accent:#22c55e;
-  --danger:#ef4444;
-}
+  :root{
+    --bg:#f3f4f6;
+    --card:#ffffff;
+    --text:#111827;
+    --muted:#6b7280;
+    --line:rgba(0,0,0,0.10);
 
-[data-theme="dark"]{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --text:#e5e7eb;
-  --muted:#94a3b8;
-  --line:rgba(255,255,255,0.1);
-}
+    --primary:#7c3aed;
+    --primary2:#2563eb;
+    --accent:#22c55e;
+    --danger:#ef4444;
 
-*{ box-sizing:border-box; }
+    --shadow:0 10px 30px rgba(0,0,0,0.12);
+    --radius:14px;
+  }
+  [data-theme="dark"]{
+    --bg:#0b1220;
+    --card:#111a2e;
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --line:rgba(255,255,255,0.12);
+    --shadow:0 10px 30px rgba(0,0,0,0.45);
+  }
 
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:var(--bg);
-  color:var(--text);
-}
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
 
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:999;
-  padding:16px;
-  background:linear-gradient(90deg,var(--primary),var(--primary2));
-  color:white;
-}
+  /* Sticky top bar */
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    padding: 14px 14px;
+    background: linear-gradient(90deg, var(--primary), var(--primary2));
+    color:#fff;
+    box-shadow: var(--shadow);
+  }
+  .topbarInner{
+    max-width: 1100px;
+    margin: 0 auto;
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .leftTop{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .titleRow{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .appTitle{
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+    margin:0;
+  }
+  .tabs{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .tabBtn{
+    border:1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.16);
+    color:#fff;
+    padding:10px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+    font-weight: 900;
+  }
+  .tabBtn.active{
+    background: rgba(255,255,255,0.30);
+    border-color: rgba(255,255,255,0.45);
+  }
 
-.topbarRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-}
+  .rightTop{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+    flex-shrink:0;
+  }
+  .statsRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .pill{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.16);
+    border:1px solid rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-weight:900;
+  }
+  .pill small{ opacity:0.9; font-weight:800; }
+  .lvlRow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width: 280px;
+    max-width: 100%;
+  }
+  .lvlTag{
+    font-weight: 900;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.20);
+    border:1px solid rgba(255,255,255,0.20);
+    white-space:nowrap;
+  }
+  .barWrap{
+    flex:1;
+    height: 14px;
+    border-radius: 999px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.22);
+  }
+  .barFill{
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg,#34d399,#22c55e,#a3e635);
+    transition: width 180ms ease;
+  }
 
-.topbar h1{
-  margin:0;
-  font-size:20px;
-}
+  /* Menu */
+  .menuWrap{ position:relative; }
+  .menuBtn{
+    border:1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.16);
+    color:#fff;
+    padding:10px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+    font-weight: 900;
+    min-width: 44px;
+    text-align:center;
+  }
+  .menu{
+    position:absolute;
+    right:0;
+    top:48px;
+    width: 220px;
+    background: var(--card);
+    color: var(--text);
+    border:1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 10px;
+    display:none;
+    z-index: 1000;
+  }
+  .menu.open{ display:block; }
+  .menuItem{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px;
+    border-radius: 12px;
+  }
+  .menuItem:hover{
+    background: rgba(0,0,0,0.06);
+  }
+  [data-theme="dark"] .menuItem:hover{
+    background: rgba(255,255,255,0.06);
+  }
+  .menuLink{
+    display:block;
+    padding:10px;
+    border-radius: 12px;
+    color: var(--text);
+    text-decoration:none;
+    font-weight: 900;
+  }
+  .menuLink:hover{
+    background: rgba(0,0,0,0.06);
+  }
+  [data-theme="dark"] .menuLink:hover{
+    background: rgba(255,255,255,0.06);
+  }
+  .switch{
+    width: 22px;
+    height: 22px;
+    accent-color: var(--accent);
+  }
 
-.stats{
-  margin-top:10px;
-}
+  /* Page */
+  .page{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  h2{
+    margin:0 0 10px 0;
+    font-size: 16px;
+    letter-spacing: 0.2px;
+  }
 
-.levelBar{
-  height:12px;
-  background:rgba(255,255,255,0.25);
-  border-radius:999px;
-  overflow:hidden;
-  margin-top:6px;
-}
+  /* Tasks list */
+  .row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    padding: 10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .row:last-child{ border-bottom:none; }
+  .left{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    flex:1;
+    min-width:0;
+  }
+  .cb{
+    width:22px;
+    height:22px;
+    accent-color: var(--accent);
+    flex-shrink:0;
+    margin-top: 2px;
+  }
+  .text{
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.25;
+  }
+  .done{
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+  .right{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+  }
+  button{
+    padding: 10px 12px;
+    border:none;
+    border-radius: 12px;
+    cursor:pointer;
+    font-weight: 900;
+    color:#fff;
+    background: linear-gradient(90deg,var(--accent),#16a34a);
+  }
+  button.danger{
+    background: linear-gradient(90deg,var(--danger),#dc2626);
+  }
+  input, select{
+    width:100%;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border:1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    outline:none;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+  }
+  .grid3{
+    display:grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap:10px;
+  }
+  .muted{ color: var(--muted); font-size: 12px; }
 
-.levelFill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#34d399,#22c55e);
-  transition:width .2s ease;
-}
+  /* Daily table */
+  .tableWrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid var(--line);
+    border-radius: 12px;
+  }
+  table{
+    width:100%;
+    border-collapse: collapse;
+    min-width: 820px; /* so phone can scroll horizontally */
+  }
+  th, td{
+    border-bottom:1px solid var(--line);
+    padding: 10px;
+    vertical-align: top;
+    text-align:left;
+  }
+  th{
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 2;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+  .taskCol{
+    min-width: 220px;
+    font-weight: 900;
+  }
+  .ptsCol{
+    width: 90px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .dayCell{
+    width: 90px;
+    text-align:center;
+  }
+  .dayCell input{
+    width: 22px;
+    height: 22px;
+    accent-color: var(--accent);
+  }
 
-/* Menu */
-.menuWrap{
-  position:relative;
-  flex-shrink:0;
-}
-
-.menuBtn{
-  border:1px solid rgba(255,255,255,0.35);
-  background:rgba(255,255,255,0.18);
-  color:white;
-  padding:10px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:900;
-}
-
-.menuDropdown{
-  position:absolute;
-  right:0;
-  top:44px;
-  min-width:180px;
-  background:var(--card);
-  color:var(--text);
-  border:1px solid var(--line);
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.18);
-  padding:10px;
-  display:none;
-  z-index:1000;
-}
-
-.menuDropdown.open{ display:block; }
-
-.menuItem{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:10px;
-  border-radius:10px;
-}
-
-.menuItem:hover{
-  background:rgba(0,0,0,0.05);
-}
-[data-theme="dark"] .menuItem:hover{
-  background:rgba(255,255,255,0.06);
-}
-
-.menuLabel{
-  font-weight:800;
-}
-
-.switch{
-  width:22px;
-  height:22px;
-  accent-color:var(--accent);
-}
-
-.page{
-  padding:16px;
-  max-width:900px;
-  margin:auto;
-}
-
-.category{
-  background:var(--card);
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:14px;
-  border:1px solid var(--line);
-}
-
-.category h3{
-  margin:0 0 10px 0;
-}
-
-.task, .reward{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  padding:8px 0;
-  border-bottom:1px solid var(--line);
-  gap:10px;
-}
-
-.task:last-child, .reward:last-child{
-  border-bottom:none;
-}
-
-.left{
-  display:flex;
-  gap:10px;
-  flex:1;
-  min-width:0;
-}
-
-.task input{
-  width:20px;
-  height:20px;
-  accent-color:var(--accent);
-}
-
-.labelText{
-  white-space:normal;
-  word-break:break-word;
-}
-
-.labelText.done{
-  text-decoration:line-through;
-  opacity:.5;
-}
-
-button{
-  background:var(--accent);
-  border:none;
-  padding:8px 12px;
-  border-radius:8px;
-  color:white;
-  font-weight:900;
-  cursor:pointer;
-}
-
-button.delete{
-  background:var(--danger);
-}
-
-/* 1) Buy buttons same size */
-.buyBtn{
-  min-width:78px;
-  text-align:center;
-}
-
-.reward.unlocked{
-  box-shadow:0 0 0 2px rgba(34,197,94,.3),0 0 20px rgba(34,197,94,.4);
-  border-radius:10px;
-  padding:8px;
-}
-
-.form{
-  margin-top:20px;
-}
-
-input{
-  padding:8px;
-  margin:4px 0;
-  width:100%;
-  border-radius:8px;
-  border:1px solid var(--line);
-  background:transparent;
-  color:var(--text);
-}
-
-@media (max-width: 720px){
-  .topbarRow{ align-items:flex-start; }
-  .menuDropdown{ top:46px; }
-}
+  @media (max-width: 720px){
+    .topbarInner{ flex-direction: column; align-items: stretch; }
+    .rightTop{ align-items: stretch; }
+    .statsRow{ justify-content: space-between; }
+    .lvlRow{ width:100%; }
+    .grid2, .grid3{ grid-template-columns: 1fr; }
+    .menu{ top: 54px; width: 100%; }
+  }
 </style>
 </head>
 
 <body>
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="leftTop">
+        <div class="titleRow">
+          <div class="appTitle">Quest Tracker</div>
+        </div>
+        <div class="tabs">
+          <button class="tabBtn active" id="tabTasks" onclick="setTab('tasks')">Tasks</button>
+          <button class="tabBtn" id="tabDaily" onclick="setTab('daily')">Daily</button>
+        </div>
+      </div>
 
-<div class="topbar">
-  <div class="topbarRow">
-    <div>
-      <h1>Quest XP Tracker</h1>
-      <div class="stats">
-        Spendable XP: <strong id="spendable">0</strong><br>
-        Earned XP: <strong id="earned">0</strong><br>
-        Level: <strong id="level">1</strong>
-        <div class="levelBar">
-          <div class="levelFill" id="levelFill"></div>
+      <div class="rightTop">
+        <div class="statsRow">
+          <div class="pill"><small>GP</small> <span id="gpVal">0</span></div>
+        </div>
+
+        <div class="lvlRow">
+          <div class="lvlTag" id="lvlTag">LVL 1</div>
+          <div class="barWrap"><div class="barFill" id="barFill"></div></div>
+        </div>
+
+        <div class="menuWrap">
+          <button class="menuBtn" id="menuBtn" aria-haspopup="true" aria-expanded="false">☰</button>
+          <div class="menu" id="menu">
+            <div class="menuItem">
+              <span style="font-weight:900;">Darkmode</span>
+              <input class="switch" type="checkbox" id="darkToggle">
+            </div>
+            <a class="menuLink" href="./finances.html">Finances</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- TASKS TAB -->
+    <div id="viewTasks">
+      <div class="card">
+        <h2>Tasks</h2>
+        <div id="tasksList"></div>
+        <div class="muted">Check/uncheck tasks to earn/remove GP. Level is based on earned XP (lifetime), GP is spendable.</div>
+      </div>
+
+      <div class="card">
+        <h2>Add Task</h2>
+        <div class="grid3">
+          <input id="newTaskName" placeholder="Task name" />
+          <input id="newTaskPts" type="number" placeholder="GP" />
+          <button onclick="addTask()">Add</button>
         </div>
       </div>
     </div>
 
-    <!-- 2) Menu in top-right -->
-    <div class="menuWrap">
-      <button class="menuBtn" id="menuBtn" aria-haspopup="true" aria-expanded="false">☰</button>
-      <div class="menuDropdown" id="menuDropdown">
-        <!-- 3) Darkmode inside menu -->
-        <div class="menuItem">
-          <span class="menuLabel">Darkmode</span>
-          <input class="switch" type="checkbox" id="darkToggle">
+    <!-- DAILY TAB -->
+    <div id="viewDaily" style="display:none;">
+      <div class="card">
+        <h2>Daily</h2>
+        <div class="muted">Weekly table (Mon–Sun). Check a box to earn GP for that daily task on that day.</div>
+      </div>
+
+      <div class="card">
+        <h2>Weekly Daily Tasks</h2>
+        <div class="tableWrap">
+          <table id="dailyTable"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Add Daily Task Row</h2>
+        <div class="grid3">
+          <input id="newDailyName" placeholder="Daily task name" />
+          <input id="newDailyPts" type="number" placeholder="GP per check" />
+          <button onclick="addDailyRow()">Add</button>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="page">
-  <div class="category">
-    <h3>Tasks</h3>
-    <div id="taskList"></div>
-  </div>
-
-  <div class="category">
-    <h3>Rewards</h3>
-    <div id="rewardList"></div>
-  </div>
-
-  <div class="category form">
-    <h3>Add Task</h3>
-    <input id="taskName" placeholder="Task name">
-    <input id="taskPoints" type="number" placeholder="Points">
-    <button onclick="addTask()">Add Task</button>
-  </div>
-
-  <div class="category form">
-    <h3>Add Reward</h3>
-    <input id="rewardName" placeholder="Reward name">
-    <input id="rewardCost" type="number" placeholder="Cost">
-    <button onclick="addReward()">Add Reward</button>
-  </div>
-</div>
 
 <script>
+/* ---------- Helpers ---------- */
+const LS = {
+  get(key, fallback){
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch { return fallback; }
+  },
+  set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+};
+
 // UUID fallback
 function uuid(){
-  if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return 'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
 }
 
-// Storage helpers
-function get(key, fallback){
-  try{ return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-  catch{ return fallback; }
-}
-function set(key,value){ localStorage.setItem(key,JSON.stringify(value)); }
+/* ---------- Economy ---------- 
+GP = spendable
+earnedXP = lifetime for level
+*/
+let gp = LS.get("gp", 0);
+let earnedXP = LS.get("earnedXP", 0);
 
-// Theme
-function applyTheme(theme){
-  document.documentElement.setAttribute("data-theme", theme);
-  set("theme", theme);
-  document.getElementById("darkToggle").checked = (theme === "dark");
-}
-function toggleTheme(){
-  const current = get("theme","light");
-  applyTheme(current === "dark" ? "light" : "dark");
-}
-
-// Menu logic
-const menuBtn = () => document.getElementById("menuBtn");
-const menuDrop = () => document.getElementById("menuDropdown");
-
-function setMenuOpen(open){
-  const d = menuDrop();
-  const b = menuBtn();
-  if(open){
-    d.classList.add("open");
-    b.setAttribute("aria-expanded","true");
-  }else{
-    d.classList.remove("open");
-    b.setAttribute("aria-expanded","false");
-  }
-}
-
-document.addEventListener("click",(e)=>{
-  const wrap = e.target.closest(".menuWrap");
-  if(wrap){
-    if(e.target.id === "menuBtn"){
-      setMenuOpen(!menuDrop().classList.contains("open"));
-    }
-    return;
-  }
-  setMenuOpen(false);
-});
-
-document.getElementById("darkToggle").addEventListener("change",()=>{
-  toggleTheme();
-});
-
-// XP/Level math (Earned XP only)
-function xpToNext(level){ return 50 + (level-1)*25; }
-
+/* Level curve */
+function xpToNext(level){ return 50 + (level - 1) * 25; }
 function computeLevel(xp){
-  let lvl=1, remaining=xp;
+  let level = 1;
+  let rem = xp;
   while(true){
-    let need=xpToNext(lvl);
-    if(remaining<need) return {lvl,progress:remaining,need};
-    remaining-=need; lvl++;
+    const need = xpToNext(level);
+    if (rem < need) return { level, inLevel: rem, need };
+    rem -= need;
+    level++;
   }
 }
 
-// State
-let spendableXp = get("spendableXp",0);
-let earnedXp = get("earnedXp",0);
-let tasks = get("tasks",[
-  {id:uuid(), name:"Book Forklift Licence", points:5},
-  {id:uuid(), name:"Book Working at Heights", points:4},
-  {id:uuid(), name:"Book Confined Spaces", points:4},
-  {id:uuid(), name:"Fill out trade qualification transfer paperwork", points:6}
+/* ---------- UI state ---------- */
+let currentTab = LS.get("tab", "tasks");
+
+/* ---------- Tasks data ---------- */
+let tasks = LS.get("tasks_v0", [
+  { id: uuid(), name: "Book Forklift Licence", pts: 5, done: false },
+  { id: uuid(), name: "Book Working at Heights", pts: 4, done: false },
+  { id: uuid(), name: "Book Confined Spaces", pts: 4, done: false }
 ]);
-let rewards = get("rewards",[
-  {id:uuid(), name:"Small treat", cost:10},
-  {id:uuid(), name:"Fun hobby / mini outing", cost:25},
-  {id:uuid(), name:"Bigger reward", cost:50}
+
+/* ---------- Daily weekly table data ---------- 
+We store:
+dailyRows = [{id,name,pts}]
+dailyChecks = { weekKey: { rowId: {0:true,1:false,...6:true} } }
+*/
+let dailyRows = LS.get("dailyRows_v0", [
+  { id: uuid(), name: "Gym", pts: 5 },
+  { id: uuid(), name: "30 min learning", pts: 4 }
 ]);
-let done = get("done",{}); // taskId:true
+let dailyChecks = LS.get("dailyChecks_v0", {});
 
-function updateHeader(){
-  document.getElementById("spendable").textContent=spendableXp;
-  document.getElementById("earned").textContent=earnedXp;
+/* Week key helper (Monday-based) */
+function startOfWeekMonday(d){
+  const date = new Date(d);
+  const day = date.getDay(); // 0 Sun..6 Sat
+  const diff = (day === 0 ? -6 : 1 - day); // move to Monday
+  date.setDate(date.getDate() + diff);
+  date.setHours(0,0,0,0);
+  return date;
+}
+function weekKeyFor(d){
+  const m = startOfWeekMonday(d);
+  return m.toISOString().slice(0,10); // YYYY-MM-DD of Monday
+}
+const weekKey = weekKeyFor(new Date());
 
-  const lvl=computeLevel(earnedXp);
-  document.getElementById("level").textContent=lvl.lvl;
-  document.getElementById("levelFill").style.width=(lvl.progress/lvl.need*100)+"%";
+/* Ensure week structure exists */
+function ensureWeek(){
+  if (!dailyChecks[weekKey]) dailyChecks[weekKey] = {};
+  for (const row of dailyRows){
+    if (!dailyChecks[weekKey][row.id]){
+      dailyChecks[weekKey][row.id] = { 0:false,1:false,2:false,3:false,4:false,5:false,6:false };
+    }
+  }
+  LS.set("dailyChecks_v0", dailyChecks);
+}
 
-  set("spendableXp",spendableXp);
-  set("earnedXp",earnedXp);
+/* ---------- Rendering ---------- */
+function renderHeader(){
+  document.getElementById("gpVal").textContent = gp;
+
+  const lvl = computeLevel(earnedXP);
+  document.getElementById("lvlTag").textContent = `LVL ${lvl.level}`;
+  const pct = Math.max(0, Math.min(100, (lvl.inLevel / lvl.need) * 100));
+  document.getElementById("barFill").style.width = pct.toFixed(1) + "%";
+
+  LS.set("gp", gp);
+  LS.set("earnedXP", earnedXP);
 }
 
 function renderTasks(){
-  const list=document.getElementById("taskList");
-  list.innerHTML="";
-  tasks.forEach(task=>{
-    const row=document.createElement("div");
-    row.className="task";
+  const host = document.getElementById("tasksList");
+  host.innerHTML = "";
 
-    const left=document.createElement("div");
-    left.className="left";
+  tasks.forEach(t => {
+    const row = document.createElement("div");
+    row.className = "row";
 
-    const cb=document.createElement("input");
-    cb.type="checkbox";
-    cb.checked=!!done[task.id];
+    const left = document.createElement("div");
+    left.className = "left";
 
-    const label=document.createElement("div");
-    label.className="labelText";
-    label.textContent=`${task.name} (${task.points} XP)`;
-    if(cb.checked) label.classList.add("done");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "cb";
+    cb.checked = !!t.done;
 
-    cb.onchange=()=>{
-      if(cb.checked){
-        spendableXp+=task.points;
-        earnedXp+=task.points;
-        done[task.id]=true;
-      }else{
-        spendableXp-=task.points;
-        earnedXp-=task.points;
-        if(spendableXp<0) spendableXp=0;
-        if(earnedXp<0) earnedXp=0;
-        delete done[task.id];
+    const text = document.createElement("div");
+    text.className = "text";
+    text.textContent = `${t.name} (${t.pts} GP)`;
+    if (t.done) text.classList.add("done");
+
+    cb.addEventListener("change", () => {
+      // allow uncheck (mistake safe)
+      if (cb.checked && !t.done){
+        gp += Number(t.pts) || 0;
+        earnedXP += Number(t.pts) || 0;
+        t.done = true;
+      } else if (!cb.checked && t.done){
+        gp -= Number(t.pts) || 0;
+        earnedXP -= Number(t.pts) || 0;
+        if (gp < 0) gp = 0;
+        if (earnedXP < 0) earnedXP = 0;
+        t.done = false;
       }
-      set("done",done);
-      updateHeader();
-      renderRewards();
+      LS.set("tasks_v0", tasks);
+      renderHeader();
       renderTasks();
-    };
+      // daily doesn’t depend, but keep consistent
+    });
 
     left.appendChild(cb);
-    left.appendChild(label);
-
-    const del=document.createElement("button");
-    del.textContent="Delete";
-    del.className="delete";
-    del.onclick=()=>{
-      delete done[task.id];
-      tasks=tasks.filter(t=>t.id!==task.id);
-      set("tasks",tasks);
-      set("done",done);
-      renderTasks();
-    };
-
-    row.appendChild(left);
-    row.appendChild(del);
-    list.appendChild(row);
-  });
-}
-
-function renderRewards(){
-  const list=document.getElementById("rewardList");
-  list.innerHTML="";
-  rewards.forEach(r=>{
-    const row=document.createElement("div");
-    row.className="reward";
-    if(spendableXp>=r.cost) row.classList.add("unlocked");
-
-    const left=document.createElement("div");
-    left.className="left";
-
-    const buy=document.createElement("button");
-    buy.textContent="Buy";
-    buy.className="buyBtn";
-    buy.onclick=()=>{
-      if(spendableXp>=r.cost){
-        spendableXp-=r.cost; // spendable only, level stays
-        updateHeader();
-        renderRewards();
-        alert("Reward claimed!");
-      }else{
-        alert("Not enough XP.");
-      }
-    };
-
-    const text=document.createElement("div");
-    text.className="labelText";
-    text.textContent=`${r.name} (Cost ${r.cost} XP)`;
-
-    left.appendChild(buy);
     left.appendChild(text);
 
-    const del=document.createElement("button");
-    del.textContent="Delete";
-    del.className="delete";
-    del.onclick=()=>{
-      rewards=rewards.filter(x=>x.id!==r.id);
-      set("rewards",rewards);
-      renderRewards();
-    };
+    const right = document.createElement("div");
+    right.className = "right";
+
+    const del = document.createElement("button");
+    del.className = "danger";
+    del.textContent = "Delete";
+    del.addEventListener("click", () => {
+      // If deleting a done task, reverse GP/XP so you don't keep free points.
+      if (t.done){
+        gp -= Number(t.pts) || 0;
+        earnedXP -= Number(t.pts) || 0;
+        if (gp < 0) gp = 0;
+        if (earnedXP < 0) earnedXP = 0;
+      }
+      tasks = tasks.filter(x => x.id !== t.id);
+      LS.set("tasks_v0", tasks);
+      renderHeader();
+      renderTasks();
+    });
+
+    right.appendChild(del);
 
     row.appendChild(left);
-    row.appendChild(del);
-    list.appendChild(row);
+    row.appendChild(right);
+    host.appendChild(row);
   });
 }
 
+function renderDailyTable(){
+  ensureWeek();
+
+  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const table = document.getElementById("dailyTable");
+  table.innerHTML = "";
+
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  hr.innerHTML = `<th class="taskCol">Daily Task</th><th class="ptsCol">GP</th>` + days.map(d => `<th class="dayCell">${d}</th>`).join("") + `<th></th>`;
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  dailyRows.forEach(row => {
+    const tr = document.createElement("tr");
+
+    // Task name
+    const tdName = document.createElement("td");
+    tdName.className = "taskCol";
+    tdName.textContent = row.name;
+
+    // Points
+    const tdPts = document.createElement("td");
+    tdPts.className = "ptsCol";
+    tdPts.textContent = `${row.pts}`;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdPts);
+
+    // 7 day checkboxes
+    for (let i=0;i<7;i++){
+      const td = document.createElement("td");
+      td.className = "dayCell";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!dailyChecks[weekKey][row.id][i];
+
+      cb.addEventListener("change", () => {
+        const was = !!dailyChecks[weekKey][row.id][i];
+        const now = cb.checked;
+
+        if (now && !was){
+          gp += Number(row.pts) || 0;
+          earnedXP += Number(row.pts) || 0;
+          dailyChecks[weekKey][row.id][i] = true;
+        } else if (!now && was){
+          gp -= Number(row.pts) || 0;
+          earnedXP -= Number(row.pts) || 0;
+          if (gp < 0) gp = 0;
+          if (earnedXP < 0) earnedXP = 0;
+          dailyChecks[weekKey][row.id][i] = false;
+        }
+
+        LS.set("dailyChecks_v0", dailyChecks);
+        renderHeader();
+        // keep table state
+      });
+
+      td.appendChild(cb);
+      tr.appendChild(td);
+    }
+
+    // Delete row
+    const tdDel = document.createElement("td");
+    tdDel.style.textAlign = "right";
+
+    const del = document.createElement("button");
+    del.className = "danger";
+    del.textContent = "Delete";
+    del.addEventListener("click", () => {
+      // Reverse any checked GP for this week row
+      const checks = dailyChecks[weekKey][row.id] || {};
+      let count = 0;
+      for (let i=0;i<7;i++) if (checks[i]) count++;
+      const total = count * (Number(row.pts) || 0);
+
+      if (total > 0){
+        gp -= total;
+        earnedXP -= total;
+        if (gp < 0) gp = 0;
+        if (earnedXP < 0) earnedXP = 0;
+      }
+
+      // Remove row + its week data
+      dailyRows = dailyRows.filter(r => r.id !== row.id);
+      delete dailyChecks[weekKey][row.id];
+
+      LS.set("dailyRows_v0", dailyRows);
+      LS.set("dailyChecks_v0", dailyChecks);
+
+      renderHeader();
+      renderDailyTable();
+    });
+
+    tdDel.appendChild(del);
+    tr.appendChild(tdDel);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+}
+
+/* ---------- Actions ---------- */
 function addTask(){
-  const name=document.getElementById("taskName").value.trim();
-  const pts=parseInt(document.getElementById("taskPoints").value);
-  if(!name||isNaN(pts)) return alert("Enter task + points");
-  tasks.push({id:uuid(),name,points:pts});
-  set("tasks",tasks);
-  document.getElementById("taskName").value="";
-  document.getElementById("taskPoints").value="";
+  const name = document.getElementById("newTaskName").value.trim();
+  const pts = parseInt(document.getElementById("newTaskPts").value, 10);
+  if (!name || Number.isNaN(pts)) return alert("Add task name + GP.");
+
+  tasks.push({ id: uuid(), name, pts, done:false });
+  LS.set("tasks_v0", tasks);
+
+  document.getElementById("newTaskName").value = "";
+  document.getElementById("newTaskPts").value = "";
   renderTasks();
 }
 
-function addReward(){
-  const name=document.getElementById("rewardName").value.trim();
-  const cost=parseInt(document.getElementById("rewardCost").value);
-  if(!name||isNaN(cost)) return alert("Enter reward + cost");
-  rewards.push({id:uuid(),name,cost});
-  set("rewards",rewards);
-  document.getElementById("rewardName").value="";
-  document.getElementById("rewardCost").value="";
-  renderRewards();
+function addDailyRow(){
+  const name = document.getElementById("newDailyName").value.trim();
+  const pts = parseInt(document.getElementById("newDailyPts").value, 10);
+  if (!name || Number.isNaN(pts)) return alert("Add daily name + GP.");
+
+  const row = { id: uuid(), name, pts };
+  dailyRows.push(row);
+  LS.set("dailyRows_v0", dailyRows);
+
+  // initialize week check data
+  ensureWeek();
+  dailyChecks[weekKey][row.id] = { 0:false,1:false,2:false,3:false,4:false,5:false,6:false };
+  LS.set("dailyChecks_v0", dailyChecks);
+
+  document.getElementById("newDailyName").value = "";
+  document.getElementById("newDailyPts").value = "";
+  renderDailyTable();
 }
 
-// Init
-applyTheme(get("theme","light"));
-updateHeader();
-renderTasks();
-renderRewards();
-</script>
+/* ---------- Tabs ---------- */
+function setTab(tab){
+  currentTab = tab;
+  LS.set("tab", tab);
 
+  document.getElementById("viewTasks").style.display = (tab === "tasks") ? "" : "none";
+  document.getElementById("viewDaily").style.display = (tab === "daily") ? "" : "none";
+
+  document.getElementById("tabTasks").classList.toggle("active", tab === "tasks");
+  document.getElementById("tabDaily").classList.toggle("active", tab === "daily");
+}
+
+/* ---------- Menu ---------- */
+const menuBtn = document.getElementById("menuBtn");
+const menu = document.getElementById("menu");
+
+function setMenuOpen(open){
+  if (open){
+    menu.classList.add("open");
+    menuBtn.setAttribute("aria-expanded","true");
+  } else {
+    menu.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded","false");
+  }
+}
+
+menuBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setMenuOpen(!menu.classList.contains("open"));
+});
+
+document.addEventListener("click", () => setMenuOpen(false));
+
+/* ---------- Darkmode ---------- */
+const darkToggle = document.getElementById("darkToggle");
+
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  LS.set("theme", theme);
+  darkToggle.checked = (theme === "dark");
+}
+darkToggle.addEventListener("change", () => {
+  applyTheme(darkToggle.checked ? "dark" : "light");
+});
+
+/* ---------- Init ---------- */
+applyTheme(LS.get("theme", "light"));
+setTab(currentTab);
+renderHeader();
+renderTasks();
+renderDailyTable();
+</script>
 </body>
 </html>
