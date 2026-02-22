@@ -26,6 +26,8 @@
   --line:rgba(255,255,255,0.1);
 }
 
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto;
@@ -40,6 +42,13 @@ body{
   padding:16px;
   background:linear-gradient(90deg,var(--primary),var(--primary2));
   color:white;
+}
+
+.topbarRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
 }
 
 .topbar h1{
@@ -66,6 +75,65 @@ body{
   transition:width .2s ease;
 }
 
+/* Menu */
+.menuWrap{
+  position:relative;
+  flex-shrink:0;
+}
+
+.menuBtn{
+  border:1px solid rgba(255,255,255,0.35);
+  background:rgba(255,255,255,0.18);
+  color:white;
+  padding:10px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:900;
+}
+
+.menuDropdown{
+  position:absolute;
+  right:0;
+  top:44px;
+  min-width:180px;
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.18);
+  padding:10px;
+  display:none;
+  z-index:1000;
+}
+
+.menuDropdown.open{ display:block; }
+
+.menuItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px;
+  border-radius:10px;
+}
+
+.menuItem:hover{
+  background:rgba(0,0,0,0.05);
+}
+[data-theme="dark"] .menuItem:hover{
+  background:rgba(255,255,255,0.06);
+}
+
+.menuLabel{
+  font-weight:800;
+}
+
+.switch{
+  width:22px;
+  height:22px;
+  accent-color:var(--accent);
+}
+
 .page{
   padding:16px;
   max-width:900px;
@@ -90,6 +158,7 @@ body{
   justify-content:space-between;
   padding:8px 0;
   border-bottom:1px solid var(--line);
+  gap:10px;
 }
 
 .task:last-child, .reward:last-child{
@@ -100,6 +169,7 @@ body{
   display:flex;
   gap:10px;
   flex:1;
+  min-width:0;
 }
 
 .task input{
@@ -124,7 +194,7 @@ button{
   padding:8px 12px;
   border-radius:8px;
   color:white;
-  font-weight:700;
+  font-weight:900;
   cursor:pointer;
 }
 
@@ -132,8 +202,16 @@ button.delete{
   background:var(--danger);
 }
 
+/* 1) Buy buttons same size */
+.buyBtn{
+  min-width:78px;
+  text-align:center;
+}
+
 .reward.unlocked{
   box-shadow:0 0 0 2px rgba(34,197,94,.3),0 0 20px rgba(34,197,94,.4);
+  border-radius:10px;
+  padding:8px;
 }
 
 .form{
@@ -149,22 +227,42 @@ input{
   background:transparent;
   color:var(--text);
 }
+
+@media (max-width: 720px){
+  .topbarRow{ align-items:flex-start; }
+  .menuDropdown{ top:46px; }
+}
 </style>
 </head>
 
 <body>
 
 <div class="topbar">
-  <h1>Quest XP Tracker</h1>
-  <div class="stats">
-    Spendable XP: <strong id="spendable">0</strong><br>
-    Earned XP: <strong id="earned">0</strong><br>
-    Level: <strong id="level">1</strong>
-    <div class="levelBar">
-      <div class="levelFill" id="levelFill"></div>
+  <div class="topbarRow">
+    <div>
+      <h1>Quest XP Tracker</h1>
+      <div class="stats">
+        Spendable XP: <strong id="spendable">0</strong><br>
+        Earned XP: <strong id="earned">0</strong><br>
+        Level: <strong id="level">1</strong>
+        <div class="levelBar">
+          <div class="levelFill" id="levelFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) Menu in top-right -->
+    <div class="menuWrap">
+      <button class="menuBtn" id="menuBtn" aria-haspopup="true" aria-expanded="false">☰</button>
+      <div class="menuDropdown" id="menuDropdown">
+        <!-- 3) Darkmode inside menu -->
+        <div class="menuItem">
+          <span class="menuLabel">Darkmode</span>
+          <input class="switch" type="checkbox" id="darkToggle">
+        </div>
+      </div>
     </div>
   </div>
-  <button onclick="toggleTheme()">Toggle Dark Mode</button>
 </div>
 
 <div class="page">
@@ -202,43 +300,89 @@ function uuid(){
 
 // Storage helpers
 function get(key, fallback){
-  try{
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
-  }catch{
-    return fallback;
+  try{ return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch{ return fallback; }
+}
+function set(key,value){ localStorage.setItem(key,JSON.stringify(value)); }
+
+// Theme
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  set("theme", theme);
+  document.getElementById("darkToggle").checked = (theme === "dark");
+}
+function toggleTheme(){
+  const current = get("theme","light");
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+
+// Menu logic
+const menuBtn = () => document.getElementById("menuBtn");
+const menuDrop = () => document.getElementById("menuDropdown");
+
+function setMenuOpen(open){
+  const d = menuDrop();
+  const b = menuBtn();
+  if(open){
+    d.classList.add("open");
+    b.setAttribute("aria-expanded","true");
+  }else{
+    d.classList.remove("open");
+    b.setAttribute("aria-expanded","false");
   }
 }
-function set(key,value){
-  localStorage.setItem(key,JSON.stringify(value));
-}
 
-let spendableXp = get("spendableXp",0);
-let earnedXp = get("earnedXp",0);
-let tasks = get("tasks",[]);
-let rewards = get("rewards",[]);
-let done = get("done",{}); // taskId:true
+document.addEventListener("click",(e)=>{
+  const wrap = e.target.closest(".menuWrap");
+  if(wrap){
+    if(e.target.id === "menuBtn"){
+      setMenuOpen(!menuDrop().classList.contains("open"));
+    }
+    return;
+  }
+  setMenuOpen(false);
+});
 
-function xpToNext(level){
-  return 50 + (level-1)*25;
-}
+document.getElementById("darkToggle").addEventListener("change",()=>{
+  toggleTheme();
+});
+
+// XP/Level math (Earned XP only)
+function xpToNext(level){ return 50 + (level-1)*25; }
 
 function computeLevel(xp){
-  let lvl=1;
-  let remaining=xp;
+  let lvl=1, remaining=xp;
   while(true){
     let need=xpToNext(lvl);
     if(remaining<need) return {lvl,progress:remaining,need};
-    remaining-=need;
-    lvl++;
+    remaining-=need; lvl++;
   }
 }
+
+// State
+let spendableXp = get("spendableXp",0);
+let earnedXp = get("earnedXp",0);
+let tasks = get("tasks",[
+  {id:uuid(), name:"Book Forklift Licence", points:5},
+  {id:uuid(), name:"Book Working at Heights", points:4},
+  {id:uuid(), name:"Book Confined Spaces", points:4},
+  {id:uuid(), name:"Fill out trade qualification transfer paperwork", points:6}
+]);
+let rewards = get("rewards",[
+  {id:uuid(), name:"Small treat", cost:10},
+  {id:uuid(), name:"Fun hobby / mini outing", cost:25},
+  {id:uuid(), name:"Bigger reward", cost:50}
+]);
+let done = get("done",{}); // taskId:true
 
 function updateHeader(){
   document.getElementById("spendable").textContent=spendableXp;
   document.getElementById("earned").textContent=earnedXp;
+
   const lvl=computeLevel(earnedXp);
   document.getElementById("level").textContent=lvl.lvl;
   document.getElementById("levelFill").style.width=(lvl.progress/lvl.need*100)+"%";
+
   set("spendableXp",spendableXp);
   set("earnedXp",earnedXp);
 }
@@ -270,6 +414,8 @@ function renderTasks(){
       }else{
         spendableXp-=task.points;
         earnedXp-=task.points;
+        if(spendableXp<0) spendableXp=0;
+        if(earnedXp<0) earnedXp=0;
         delete done[task.id];
       }
       set("done",done);
@@ -311,12 +457,15 @@ function renderRewards(){
 
     const buy=document.createElement("button");
     buy.textContent="Buy";
+    buy.className="buyBtn";
     buy.onclick=()=>{
       if(spendableXp>=r.cost){
-        spendableXp-=r.cost;
+        spendableXp-=r.cost; // spendable only, level stays
         updateHeader();
         renderRewards();
         alert("Reward claimed!");
+      }else{
+        alert("Not enough XP.");
       }
     };
 
@@ -345,7 +494,7 @@ function renderRewards(){
 function addTask(){
   const name=document.getElementById("taskName").value.trim();
   const pts=parseInt(document.getElementById("taskPoints").value);
-  if(!name||isNaN(pts)) return;
+  if(!name||isNaN(pts)) return alert("Enter task + points");
   tasks.push({id:uuid(),name,points:pts});
   set("tasks",tasks);
   document.getElementById("taskName").value="";
@@ -356,7 +505,7 @@ function addTask(){
 function addReward(){
   const name=document.getElementById("rewardName").value.trim();
   const cost=parseInt(document.getElementById("rewardCost").value);
-  if(!name||isNaN(cost)) return;
+  if(!name||isNaN(cost)) return alert("Enter reward + cost");
   rewards.push({id:uuid(),name,cost});
   set("rewards",rewards);
   document.getElementById("rewardName").value="";
@@ -364,11 +513,8 @@ function addReward(){
   renderRewards();
 }
 
-function toggleTheme(){
-  const current=document.documentElement.getAttribute("data-theme");
-  document.documentElement.setAttribute("data-theme",current==="dark"?"light":"dark");
-}
-
+// Init
+applyTheme(get("theme","light"));
 updateHeader();
 renderTasks();
 renderRewards();
