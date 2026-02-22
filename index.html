@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Quest XP Tracker</title>
+
+<style>
+  :root{
+    --bg: #f2f2f2;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: rgba(17,24,39,0.12);
+
+    --primary: #6d28d9;      /* purple */
+    --primary2: #2563eb;     /* blue */
+    --accent: #22c55e;       /* green */
+    --danger: #ef4444;       /* red */
+
+    --btnText: #ffffff;
+    --shadow: 0 10px 30px rgba(0,0,0,0.12);
+    --shadow2: 0 6px 18px rgba(0,0,0,0.10);
+
+    --radius: 14px;
+  }
+
+  [data-theme="dark"]{
+    --bg: #0b1220;
+    --card: #111a2e;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --line: rgba(229,231,235,0.14);
+
+    --primary: #8b5cf6;
+    --primary2: #3b82f6;
+    --accent: #22c55e;
+    --danger: #f87171;
+
+    --shadow: 0 10px 30px rgba(0,0,0,0.45);
+    --shadow2: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    padding: 14px 14px;
+    background: linear-gradient(90deg, var(--primary), var(--primary2));
+    color: #fff;
+    box-shadow: var(--shadow);
+  }
+
+  .topbarInner{
+    max-width: 1100px;
+    margin: 0 auto;
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap: 12px;
+  }
+
+  .brand{
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .brand .title{
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+  }
+
+  .brand .subtitle{
+    font-size: 12px;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stats{
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+    min-width: 260px;
+  }
+
+  .pillRow{
+    display:flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .pill{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.22);
+    padding: 8px 10px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .pill .k{ font-size: 11px; opacity:0.95; }
+  .pill .v{ font-size: 14px; font-weight: 900; }
+
+  .levelRow{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .levelTag{
+    font-weight: 900;
+    font-size: 12px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.22);
+    padding: 6px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .barWrap{
+    flex: 1;
+    min-width: 150px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    height: 14px;
+    overflow: hidden;
+  }
+
+  .barFill{
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #34d399, #22c55e, #a3e635);
+    border-radius: 999px;
+    transition: width 180ms ease;
+  }
+
+  .barText{
+    font-size: 11px;
+    opacity: 0.95;
+    white-space: nowrap;
+  }
+
+  .toggleBtn{
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 800;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .toggleBtn:active{ transform: scale(0.98); }
+
+  .page{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .category{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow2);
+    padding: 14px;
+    margin-bottom: 14px;
+    border: 1px solid var(--line);
+  }
+
+  .catHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .catHeader h3{
+    margin:0;
+    font-size: 15px;
+    letter-spacing: 0.2px;
+  }
+
+  .catBadge{
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(109,40,217,0.10);
+    border: 1px solid rgba(109,40,217,0.22);
+    color: var(--text);
+    opacity: 0.95;
+  }
+
+  .catRemove{
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--muted);
+    padding: 0 6px;
+  }
+  .catRemove:hover{ color: var(--danger); }
+
+  .task, .reward{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .task:last-child, .reward:last-child{ border-bottom: none; }
+
+  .left{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+  }
+  .right{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .task input{
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .labelText{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+  .labelText.done{
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  button{
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    color: var(--btnText);
+    background: linear-gradient(90deg, var(--accent), #16a34a);
+    box-shadow: 0 8px 18px rgba(34,197,94,0.25);
+  }
+  button:active{ transform: scale(0.98); }
+
+  button.delete{
+    background: linear-gradient(90deg, var(--danger), #dc2626);
+    box-shadow: 0 8px 18px rgba(239,68,68,0.22);
+  }
+
+  .form-section{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow2);
+    padding: 14px;
+    margin: 14px 0;
+    border: 1px solid var(--line);
+  }
+  .form-section h3{
+    margin: 0 0 10px 0;
+    font-size: 15px;
+  }
+
+  input, select{
+    width: 100%;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    outline: none;
+  }
+
+  input::placeholder{ color: var(--muted); }
+
+  .row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items:center;
+  }
+
+  .rowFull{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .inline{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    flex-wrap: wrap;
+  }
+
+  .note{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* 2) Reward unlock glow */
+  .reward.unlocked{
+    border-radius: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,0.22),
+      0 0 24px rgba(34,197,94,0.25);
+    animation: rewardPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes rewardPulse{
+    0%   { box-shadow: 0 0 0 2px rgba(34,197,94,0.18), 0 0 16px rgba(34,197,94,0.18); }
+    50%  { box-shadow: 0 0 0 2px rgba(34,197,94,0.35), 0 0 30px rgba(34,197,94,0.32); }
+    100% { box-shadow: 0 0 0 2px rgba(34,197,94,0.18), 0 0 16px rgba(34,197,94,0.18); }
+  }
+
+  /* Mobile */
+  @media (max-width: 720px){
+    .page{ padding: 12px; }
+    .row{ grid-template-columns: 1fr; }
+    .topbarInner{ flex-direction: column; align-items: stretch; }
+    .stats{ min-width: 0; }
+    .pillRow{ justify-content: flex-start; }
+    .levelRow{ justify-content: flex-start; }
+    .toggleBtn{ width: 100%; }
+  }
+</style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="brand">
+        <div class="title">Quest XP Tracker</div>
+        <div class="subtitle">Check tasks → earn XP → buy rewards</div>
+      </div>
+
+      <div class="stats">
+        <div class="pillRow">
+          <div class="pill"><span class="k">Spendable XP</span><span class="v" id="spendableXp">0</span></div>
+          <div class="pill"><span class="k">Earned XP</span><span class="v" id="earnedXp">0</span></div>
+        </div>
+
+        <div class="levelRow">
+          <div class="levelTag" id="levelTag">LVL 1</div>
+          <div class="barWrap" aria-label="Level progress">
+            <div class="barFill" id="barFill"></div>
+          </div>
+          <div class="barText" id="barText">0 / 50</div>
+        </div>
+      </div>
+
+      <button class="toggleBtn" id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <div id="categoriesRoot"></div>
+
+    <div class="category" id="rewardsBox">
+      <div class="catHeader">
+        <div class="inline" style="gap:10px;">
+          <h3 style="margin:0;">Rewards</h3>
+          <span class="catBadge">Spend XP</span>
+        </div>
+        <span></span>
+      </div>
+      <div id="rewards"></div>
+    </div>
+
+    <div class="form-section">
+      <h3>Add New Category</h3>
+      <div class="rowFull">
+        <input type="text" id="newCategoryName" placeholder="Category name (e.g. Reading)" />
+        <button onclick="addCategory()">Add Category</button>
+      </div>
+      <div class="note">Removing a category moves its tasks into <b>thingsToDo</b> (safe default).</div>
+    </div>
+
+    <div class="form-section">
+      <h3>Add New Task</h3>
+      <div class="row">
+        <input type="text" id="newTaskName" placeholder="Task Name" />
+        <input type="number" id="newTaskPoints" placeholder="Points" />
+        <select id="newTaskCategory"></select>
+        <label class="inline" style="margin:0;">
+          <input type="checkbox" id="newTaskRepeatable" style="width:22px;height:22px;" />
+          <span style="font-weight:900;">Repeatable</span>
+        </label>
+      </div>
+      <div class="rowFull" style="margin-top:10px;">
+        <button onclick="addTask()">Add Task</button>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Add New Reward</h3>
+      <div class="row">
+        <input type="text" id="newRewardName" placeholder="Reward Name" />
+        <input type="number" id="newRewardCost" placeholder="XP Cost" />
+      </div>
+      <div class="rowFull" style="margin-top:10px;">
+        <button onclick="addReward()">Add Reward</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/** ---------- Storage helpers ---------- */
+const LS = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch { return fallback; }
+  },
+  set(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+};
+
+const todayKey = new Date().toDateString();
+
+/** ---------- Theme ---------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("themeToggle");
+  btn.textContent = theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+  LS.set("theme", theme);
+}
+function toggleTheme(){
+  const current = LS.get("theme", "light");
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+applyTheme(LS.get("theme", "light"));
+
+/** ---------- Level math (based on Earned XP only) ----------
+ * Level requirement grows linearly:
+ * XP needed for next level = 50 + (level-1)*25
+ */
+function xpToNext(level){ return 50 + (level - 1) * 25; }
+
+function computeLevel(earned){
+  let level = 1;
+  let remaining = earned;
+
+  while (true) {
+    const need = xpToNext(level);
+    if (remaining < need) {
+      return { level, inLevel: remaining, need };
+    }
+    remaining -= need;
+    level += 1;
+  }
+}
+
+/** ---------- Defaults ---------- */
+const defaultCategories = [
+  { id: "thingsToDo", title: "Things That Need to Be Done (One-Time)" },
+  { id: "sidequests", title: "Sidequests (One-Time)" },
+  { id: "daily", title: "Daily Tasks (Repeatable)" },
+  { id: "skillLearning", title: "Skill Learning (Repeatable)" }
+];
+
+const defaultTasks = [
+  {id: crypto.randomUUID(), name:"Book Forklift Licence", points:5, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Book Working at Heights", points:4, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Book Confined Spaces", points:4, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Fill out trade qualification transfer paperwork", points:6, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Calculate finances", points:3, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Budget / track spending", points:3, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Find a gym", points:3, category:"thingsToDo", repeatable:false},
+  {id: crypto.randomUUID(), name:"Make a gym training plan", points:3, category:"thingsToDo", repeatable:false},
+
+  {id: crypto.randomUUID(), name:"Explore Kings Park & Botanic Garden", points:3, category:"sidequests", repeatable:false},
+  {id: crypto.randomUUID(), name:"Hike Bold Park / Mt. Eliza", points:4, category:"sidequests", repeatable:false},
+  {id: crypto.randomUUID(), name:"Visit Fremantle Markets", points:2, category:"sidequests", repeatable:false},
+  {id: crypto.randomUUID(), name:"Go to Perth Cultural Centre / WA Art Gallery", points:2, category:"sidequests", repeatable:false},
+  {id: crypto.randomUUID(), name:"Day trip to Rottnest Island", points:7, category:"sidequests", repeatable:false},
+  {id: crypto.randomUUID(), name:"Perth Night Markets / food stalls", points:2, category:"sidequests", repeatable:false},
+
+  {id: crypto.randomUUID(), name:"Go to the gym", points:5, category:"daily", repeatable:true},
+  {id: crypto.randomUUID(), name:"Cooking / nutrition experiments (30 min/day)", points:4, category:"skillLearning", repeatable:true},
+  {id: crypto.randomUUID(), name:"Financial literacy / personal finance mastery (30 min/day)", points:5, category:"skillLearning", repeatable:true}
+];
+
+const defaultRewards = [
+  {id: crypto.randomUUID(), name:"Small treat (snack, coffee)", cost:10},
+  {id: crypto.randomUUID(), name:"Fun hobby / mini outing", cost:25},
+  {id: crypto.randomUUID(), name:"Bigger reward (day trip, gear, experience)", cost:50}
+];
+
+/** ---------- Persistent state ----------
+ * spendableXp = what you can spend on rewards
+ * earnedXp = lifetime XP for level progress (spending does NOT reduce this)
+ */
+let spendableXp = LS.get("spendableXp", 0);
+let earnedXp = LS.get("earnedXp", 0);
+
+let categories = LS.get("categories", null);
+let tasks = LS.get("tasks", null);
+let rewards = LS.get("rewards", null);
+let doneMap = LS.get("doneMap", {}); // { [taskId]: {date:"..."} }
+
+if (!Array.isArray(categories)) { categories = defaultCategories; LS.set("categories", categories); }
+if (!Array.isArray(tasks)) { tasks = defaultTasks; LS.set("tasks", tasks); }
+if (!Array.isArray(rewards)) { rewards = defaultRewards; LS.set("rewards", rewards); }
+
+function updateHeaderUI(){
+  document.getElementById("spendableXp").textContent = spendableXp;
+  document.getElementById("earnedXp").textContent = earnedXp;
+
+  const lvl = computeLevel(earnedXp);
+  document.getElementById("levelTag").textContent = `LVL ${lvl.level}`;
+  document.getElementById("barText").textContent = `${lvl.inLevel} / ${lvl.need}`;
+
+  const pct = Math.max(0, Math.min(100, (lvl.inLevel / lvl.need) * 100));
+  document.getElementById("barFill").style.width = pct.toFixed(1) + "%";
+
+  LS.set("spendableXp", spendableXp);
+  LS.set("earnedXp", earnedXp);
+}
+
+/** ---------- Daily rollover ----------
+ * repeatables reset daily (doneMap cleared)
+ * one-time tasks removed if completed on previous day
+ */
+function dailyRollover() {
+  const lastDay = LS.get("lastDay", null);
+  if (lastDay === todayKey) return;
+
+  for (const t of tasks) {
+    if (t.repeatable && doneMap[t.id] && doneMap[t.id].date !== todayKey) {
+      delete doneMap[t.id];
+    }
+  }
+
+  tasks = tasks.filter(t => {
+    if (t.repeatable) return true;
+    const rec = doneMap[t.id];
+    if (!rec) return true;
+    return rec.date === todayKey;
+  });
+
+  LS.set("tasks", tasks);
+  LS.set("doneMap", doneMap);
+  LS.set("lastDay", todayKey);
+}
+dailyRollover();
+
+function taskIsDoneToday(taskId) {
+  const rec = doneMap[taskId];
+  return !!rec && rec.date === todayKey;
+}
+
+/** ---------- Categories ---------- */
+function renderCategorySelect() {
+  const sel = document.getElementById("newTaskCategory");
+  sel.innerHTML = "";
+  categories.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.title.replace(/\s*\(.*?\)\s*$/, "");
+    sel.appendChild(opt);
+  });
+}
+
+function renderCategories() {
+  const root = document.getElementById("categoriesRoot");
+  root.innerHTML = "";
+
+  categories.forEach(cat => {
+    const box = document.createElement("div");
+    box.className = "category";
+    box.id = `cat_${cat.id}`;
+
+    const header = document.createElement("div");
+    header.className = "catHeader";
+
+    const left = document.createElement("div");
+    left.className = "inline";
+    left.style.gap = "10px";
+
+    const h = document.createElement("h3");
+    h.textContent = cat.title;
+
+    const badge = document.createElement("span");
+    badge.className = "catBadge";
+    badge.textContent = cat.id;
+
+    left.appendChild(h);
+    left.appendChild(badge);
+
+    const x = document.createElement("button");
+    x.className = "catRemove";
+    x.textContent = "✕";
+    x.title = "Remove category";
+    x.addEventListener("click", () => removeCategory(cat.id));
+
+    header.appendChild(left);
+    header.appendChild(x);
+
+    const list = document.createElement("div");
+    list.id = `list_${cat.id}`;
+
+    box.appendChild(header);
+    box.appendChild(list);
+    root.appendChild(box);
+  });
+
+  renderTasks();
+}
+
+function addCategory() {
+  const name = document.getElementById("newCategoryName").value.trim();
+  if (!name) return alert("Enter a category name.");
+
+  const id = "cat_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (categories.some(c => c.id === id)) return alert("That category already exists.");
+
+  categories.push({ id, title: name });
+  LS.set("categories", categories);
+
+  document.getElementById("newCategoryName").value = "";
+  renderCategorySelect();
+  renderCategories();
+}
+
+function removeCategory(catId) {
+  if (catId === "thingsToDo") return alert('You can’t remove "thingsToDo".');
+
+  tasks = tasks.map(t => t.category === catId ? ({...t, category: "thingsToDo"}) : t);
+  LS.set("tasks", tasks);
+
+  categories = categories.filter(c => c.id !== catId);
+  LS.set("categories", categories);
+
+  renderCategorySelect();
+  renderCategories();
+}
+
+/** ---------- Tasks ---------- */
+function renderTasks() {
+  categories.forEach(cat => {
+    const container = document.getElementById(`list_${cat.id}`);
+    if (!container) return;
+    container.innerHTML = "";
+
+    tasks.filter(t => t.category === cat.id).forEach(task => {
+      const row = document.createElement('div');
+      row.className = 'task';
+
+      const left = document.createElement('div');
+      left.className = 'left';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = taskIsDoneToday(task.id);
+
+      const label = document.createElement('span');
+      label.className = 'labelText';
+      label.textContent = `${task.name} (${task.points} XP)`;
+      if (cb.checked) label.classList.add("done");
+
+      cb.addEventListener('change', () => handleTaskToggle(task, cb, label));
+
+      left.appendChild(cb);
+      left.appendChild(label);
+
+      const right = document.createElement('div');
+      right.className = 'right';
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete';
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => deleteTask(task.id));
+
+      right.appendChild(delBtn);
+
+      row.appendChild(left);
+      row.appendChild(right);
+
+      container.appendChild(row);
+    });
+  });
+}
+
+function handleTaskToggle(task, cb, labelEl) {
+  const points = Number(task.points);
+
+  // 1) allow unchecking for ALL tasks (accident-friendly)
+  if (cb.checked) {
+    if (!taskIsDoneToday(task.id)) {
+      spendableXp += points;
+      earnedXp += points;
+      doneMap[task.id] = { date: todayKey };
+      LS.set("doneMap", doneMap);
+      updateHeaderUI();
+      renderRewards(); // update glow
+    }
+    labelEl.classList.add("done");
+  } else {
+    if (taskIsDoneToday(task.id)) {
+      // reverse the gain
+      spendableXp -= points;
+      earnedXp -= points;
+      if (spendableXp < 0) spendableXp = 0;
+      if (earnedXp < 0) earnedXp = 0;
+
+      delete doneMap[task.id];
+      LS.set("doneMap", doneMap);
+      updateHeaderUI();
+      renderRewards(); // update glow
+    }
+    labelEl.classList.remove("done");
+  }
+}
+
+function deleteTask(taskId) {
+  tasks = tasks.filter(t => t.id !== taskId);
+  delete doneMap[taskId];
+  LS.set("tasks", tasks);
+  LS.set("doneMap", doneMap);
+  renderTasks();
+}
+
+/** ---------- Add task ---------- */
+function addTask() {
+  const name = document.getElementById('newTaskName').value.trim();
+  const points = parseInt(document.getElementById('newTaskPoints').value, 10);
+  const category = document.getElementById('newTaskCategory').value;
+  const repeatable = document.getElementById('newTaskRepeatable').checked;
+
+  if (!name || Number.isNaN(points)) return alert("Enter valid task and points");
+
+  tasks.push({ id: crypto.randomUUID(), name, points, category, repeatable });
+  LS.set("tasks", tasks);
+
+  document.getElementById('newTaskName').value = "";
+  document.getElementById('newTaskPoints').value = "";
+  document.getElementById('newTaskRepeatable').checked = false;
+
+  renderTasks();
+}
+
+/** ---------- Rewards ---------- */
+function renderRewards() {
+  const container = document.getElementById('rewards');
+  container.innerHTML = "";
+
+  rewards.forEach(reward => {
+    const row = document.createElement('div');
+    row.className = 'reward';
+
+    // 2) unlock glow if spendableXp >= cost
+    if (spendableXp >= Number(reward.cost)) row.classList.add("unlocked");
+
+    const left = document.createElement('div');
+    left.className = 'left';
+
+    // Buy button on left
+    const buyBtn = document.createElement('button');
+    buyBtn.textContent = 'Buy';
+    buyBtn.addEventListener('click', () => claimReward(reward.id));
+
+    const text = document.createElement('span');
+    text.className = 'labelText';
+    text.textContent = `${reward.name} (Cost: ${reward.cost} XP)`;
+
+    left.appendChild(buyBtn);
+    left.appendChild(text);
+
+    const right = document.createElement('div');
+    right.className = 'right';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete';
+    delBtn.textContent = 'Delete';
+    delBtn.addEventListener('click', () => deleteReward(reward.id));
+
+    right.appendChild(delBtn);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    container.appendChild(row);
+  });
+}
+
+function claimReward(rewardId) {
+  const reward = rewards.find(r => r.id === rewardId);
+  if (!reward) return;
+
+  const cost = Number(reward.cost);
+
+  if (spendableXp >= cost) {
+    // 3) spending reduces spendable only, NOT earned -> level bar stays
+    spendableXp -= cost;
+    if (spendableXp < 0) spendableXp = 0;
+
+    updateHeaderUI();
+    renderRewards();
+    alert(`Reward claimed: ${reward.name}`);
+  } else {
+    alert(`Not enough XP for ${reward.name}`);
+  }
+}
+
+function deleteReward(rewardId) {
+  rewards = rewards.filter(r => r.id !== rewardId);
+  LS.set("rewards", rewards);
+  renderRewards();
+}
+
+function addReward() {
+  const name = document.getElementById('newRewardName').value.trim();
+  const cost = parseInt(document.getElementById('newRewardCost').value, 10);
+
+  if (!name || Number.isNaN(cost)) return alert("Enter valid reward and cost");
+
+  rewards.push({ id: crypto.randomUUID(), name, cost });
+  LS.set("rewards", rewards);
+
+  document.getElementById('newRewardName').value = "";
+  document.getElementById('newRewardCost').value = "";
+
+  renderRewards();
+}
+
+/** ---------- Init ---------- */
+renderCategorySelect();
+renderCategories();
+renderRewards();
+updateHeaderUI();
+</script>
+</body>
+</html>
