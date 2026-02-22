@@ -4,7 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Interactive Quest XP Tracker</title>
-
+const ONE_TIME_HIDE_DELAY_MS = 5 * 60 * 1000; // 5 minutes
+  
 <style>
   :root{
     --bg: #f2f2f2;
@@ -446,6 +447,7 @@
 
 <script>
 /** ---------- Storage helpers ---------- */
+const ONE_TIME_HIDE_DELAY_MS = 5 * 60 * 1000; // 5 minutes
 const LS = {
   get(key, fallback) {
     try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -870,3 +872,4 @@ updateHeaderUI();
 </body>
 
 </html>
+
