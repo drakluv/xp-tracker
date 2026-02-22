@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finances</title>
+<style>
+  :root{ --bg:#f3f4f6; --card:#fff; --text:#111827; --line:rgba(0,0,0,0.10); --primary:#2563eb; }
+  [data-theme="dark"]{ --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --line:rgba(255,255,255,0.12); }
+  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+  .top{ position:sticky; top:0; z-index:9; padding:14px; background:linear-gradient(90deg,#7c3aed,var(--primary)); color:#fff; }
+  .wrap{ max-width:900px; margin:0 auto; padding:16px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  a{ color:#fff; font-weight:900; text-decoration:none; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div style="font-weight:900;">Finances</div>
+      <a href="./index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;">Placeholder</h2>
+      <p style="margin:0;">
+        This is your Finances page. Next step is adding:
+        income, expenses, weekly budget, and a simple net balance.
+      </p>
+    </div>
+  </div>
+
+<script>
+  // keep darkmode consistent between pages
+  const theme = localStorage.getItem("theme");
+  if(theme){
+    try{
+      const t = JSON.parse(theme);
+      document.documentElement.setAttribute("data-theme", t);
+    }catch{}
+  }
+</script>
+</body>
+</html>
