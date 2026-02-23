@@ -47,9 +47,7 @@
     color:var(--text);
   }
 
-  /* =========================
-     TOP BAR + MENU (like main)
-  ========================= */
+  /* TOP BAR + MENU */
   .topbar{
     position: sticky;
     top: 0;
@@ -139,9 +137,7 @@
     accent-color: var(--accent);
   }
 
-  /* =========================
-     PAGE LAYOUT
-  ========================= */
+  /* PAGE LAYOUT */
   .page{
     max-width:1100px;
     margin:0 auto;
@@ -163,8 +159,6 @@
     letter-spacing:0.2px;
   }
 
-  .muted{ color:var(--muted); font-size:12px; }
-
   .row{
     display:flex;
     gap:14px;
@@ -175,9 +169,28 @@
     min-width:320px;
   }
 
-  /* =========================
-     CALENDAR
-  ========================= */
+  /* RANGE SELECTOR */
+  .rangeRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .rangeRow select{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    font-weight:900;
+    outline:none;
+    min-width: 180px;
+  }
+  .rangeRow select option{ background: var(--card); color: var(--text); }
+
+  /* CALENDAR */
   .calHeader{
     display:flex;
     align-items:center;
@@ -222,25 +235,42 @@
     padding:10px;
     min-height: 64px;
     display:flex;
-    flex-direction:column;
-    gap:6px;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
   }
   .dayNum{
     font-weight:900;
     font-size:12px;
     opacity:0.9;
   }
-  .badge{
-    font-size:11px;
-    font-weight:900;
-    padding:4px 8px;
-    border-radius:999px;
-    width: fit-content;
+  .mark{
+    font-weight: 1000;
+    font-size: 16px;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    min-width: 36px;
+    text-align:center;
   }
-  .ok{ background: rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.30); }
-  .miss{ background: rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.30); }
-  .future{ background: rgba(107,114,128,0.14); border:1px solid rgba(107,114,128,0.22); }
+  .mark.ok{ background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.30); }
+  .mark.miss{ background: rgba(239,68,68,0.16); border-color: rgba(239,68,68,0.30); }
+  .mark.future{ background: rgba(107,114,128,0.14); border-color: rgba(107,114,128,0.22); }
   .empty{ background: transparent; border:1px dashed var(--line); opacity:0.6; }
+
+  /* PHONE: make calendar fit nicely */
+  @media (max-width: 520px){
+    .calGrid{ gap:6px; }
+    .day{
+      padding:8px;
+      min-height: 48px;
+      border-radius: 10px;
+    }
+    .dow{ font-size:11px; padding:4px 0; }
+    .dayNum{ font-size:11px; }
+    .mark{ font-size:14px; padding:5px 8px; min-width: 30px; }
+  }
 </style>
 </head>
 
@@ -271,10 +301,6 @@
   <!-- CONTENT -->
   <div class="page">
 
-    <div class="card">
-      <div class="muted">Uses your phone’s local time. Week = Monday → Sunday.</div>
-    </div>
-
     <div class="row">
       <div class="card half">
         <h2>Tasks completed by category (this week)</h2>
@@ -299,27 +325,36 @@
       </div>
 
       <div class="card half">
-        <h2>Money: income vs outgoing (last 8 weeks)</h2>
+        <div class="rangeRow">
+          <h2 style="margin:0;">Money: income vs expenses</h2>
+          <select id="moneyRange">
+            <option value="weekly" selected>Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
         <canvas id="moneyChart" height="140"></canvas>
       </div>
     </div>
 
-    <div class="card">
-      <div class="calHeader">
-        <div class="calTitle" id="calTitle">Daily Completion Calendar</div>
-        <div class="calBtns">
-          <button class="btn" onclick="Calendar.prev()">‹</button>
-          <button class="btn" onclick="Calendar.today()">Today</button>
-          <button class="btn" onclick="Calendar.next()">›</button>
+    <div class="row">
+      <div class="card half">
+        <h2>Spending by category (this month)</h2>
+        <canvas id="spendChart" height="140"></canvas>
+      </div>
+
+      <div class="card half">
+        <h2>Daily Completion Calendar</h2>
+        <div class="calHeader" style="margin-top:8px;">
+          <div class="calTitle" id="calTitle"></div>
+          <div class="calBtns">
+            <button class="btn" onclick="Calendar.prev()">‹</button>
+            <button class="btn" onclick="Calendar.today()">Today</button>
+            <button class="btn" onclick="Calendar.next()">›</button>
+          </div>
         </div>
-      </div>
 
-      <div class="calGrid" id="calGrid">
-        <!-- Rendered by JS -->
-      </div>
-
-      <div class="muted" style="margin-top:10px;">
-        Calendar is based on “ALL daily tasks completed on that day”.
+        <div class="calGrid" id="calGrid"></div>
       </div>
     </div>
 
@@ -370,7 +405,7 @@ const LS = {
 })();
 
 /* =========================================================
-  BLOCK 1 — TIME HELPERS (PHONE LOCAL TIME)
+  BLOCK 1 — TIME HELPERS
 ========================================================= */
 function localDateKey(d=new Date()){
   const yr = d.getFullYear();
@@ -393,15 +428,23 @@ function dayIndexMon0(d){
 function weekKeyFor(d){
   return localDateKey(startOfWeekMonday(d));
 }
+function monthKey(d){
+  const yr = d.getFullYear();
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  return `${yr}-${mo}`;
+}
 
 /* =========================================================
   BLOCK 2 — LOAD DATA (from other pages)
 ========================================================= */
-const events = LS.get("eventLog_v1", []);
-const categories = LS.get("categories_v0", [{id:"cat_general", name:"General"}]);
-const dailyRows = LS.get("dailyRows_v0", []);
+const events      = LS.get("eventLog_v1", []);
+const categories  = LS.get("categories_v0", [{id:"cat_general", name:"General"}]);
+const dailyRows   = LS.get("dailyRows_v0", []);
 const dailyChecks = LS.get("dailyChecks_v0", {});
-const finEntries = LS.get("fin_entries_v1", []);
+
+// Finance: prefer v2 (your current finances page), fall back to v1
+const finEntries  = LS.get("fin_entries_v2", LS.get("fin_entries_v1", []));
+const finCats     = LS.get("fin_cats_v2", LS.get("fin_cats_v1", []));
 
 /* =========================================================
   BLOCK 3 — DAILY COMPLETION CHECK (ALL daily rows done)
@@ -421,7 +464,7 @@ function isDailyCompleteOnDate(dateObj){
 }
 
 /* =========================================================
-  BLOCK 4 — WEEKLY CHARTS (tasks by category, gym, gp)
+  BLOCK 4 — WEEKLY CHARTS (category, gym, gp)
 ========================================================= */
 (function WeeklyCharts(){
   const now = new Date();
@@ -429,7 +472,6 @@ function isDailyCompleteOnDate(dateObj){
   const we = new Date(ws); we.setDate(we.getDate()+7);
 
   const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-
   const catName = (id) => (categories.find(c=>c.id===id)?.name || "Unknown");
 
   // Tasks completed by category (net complete - undo)
@@ -457,7 +499,7 @@ function isDailyCompleteOnDate(dateObj){
     options: { responsive:true, plugins:{ legend:{ display:false } } }
   });
 
-  // Gym frequency (from dailyChecks, rows with isGym)
+  // Gym frequency (from dailyChecks rows with isGym)
   const wkKey = weekKeyFor(now);
   const weekGrid = dailyChecks[wkKey] || {};
   const gymRows = (dailyRows || []).filter(r => r.isGym);
@@ -492,7 +534,7 @@ function isDailyCompleteOnDate(dateObj){
 })();
 
 /* =========================================================
-  BLOCK 5 — STREAK HISTORY (reconstructed from daily completion)
+  BLOCK 5 — STREAK HISTORY (reconstructed)
 ========================================================= */
 (function StreakHistory(){
   const labels = [];
@@ -500,7 +542,6 @@ function isDailyCompleteOnDate(dateObj){
 
   let streak = 0;
   const today = new Date();
-  // last 30 days including today
   for (let back=29; back>=0; back--){
     const d = new Date(today);
     d.setDate(d.getDate() - back);
@@ -521,67 +562,143 @@ function isDailyCompleteOnDate(dateObj){
 })();
 
 /* =========================================================
-  BLOCK 6 — MONEY CHART (income vs outgoing, last 8 weeks)
+  BLOCK 6 — MONEY RANGE CHART (weekly/monthly/yearly)
 ========================================================= */
-(function MoneyChart(){
-  function weekStartKey(d){
-    const ws = startOfWeekMonday(d);
-    return localDateKey(ws);
+const Money = (() => {
+  let moneyChart = null;
+
+  function bucketKeyForEntry(e, mode){
+    const d = new Date((e.date || "") + "T12:00:00");
+    if (Number.isNaN(d.getTime())) return null;
+
+    if (mode === "weekly") return localDateKey(startOfWeekMonday(d));
+    if (mode === "monthly") return monthKey(d);
+    if (mode === "yearly") return String(d.getFullYear());
+    return null;
   }
 
-  // build buckets for last 8 weeks (including this week)
-  const buckets = [];
-  const labels = [];
+  function buildBuckets(mode){
+    const now = new Date();
+    const buckets = [];
+    const labels = [];
+
+    if (mode === "weekly"){
+      const thisWs = startOfWeekMonday(now);
+      for (let i=7; i>=0; i--){
+        const ws = new Date(thisWs);
+        ws.setDate(ws.getDate() - i*7);
+        const key = localDateKey(ws);
+        buckets.push({ key, income:0, outgoing:0 });
+        labels.push(key.slice(5));
+      }
+    }
+
+    if (mode === "monthly"){
+      const base = new Date(now.getFullYear(), now.getMonth(), 1);
+      for (let i=11; i>=0; i--){
+        const m = new Date(base);
+        m.setMonth(m.getMonth() - i);
+        const key = monthKey(m);
+        buckets.push({ key, income:0, outgoing:0 });
+        labels.push(key);
+      }
+    }
+
+    if (mode === "yearly"){
+      const year = now.getFullYear();
+      for (let i=4; i>=0; i--){
+        const y = String(year - i);
+        buckets.push({ key:y, income:0, outgoing:0 });
+        labels.push(y);
+      }
+    }
+
+    return { buckets, labels };
+  }
+
+  function render(){
+    const mode = document.getElementById("moneyRange").value;
+    const { buckets, labels } = buildBuckets(mode);
+    const map = new Map(buckets.map(b => [b.key, b]));
+
+    finEntries.forEach(e => {
+      const key = bucketKeyForEntry(e, mode);
+      const b = key ? map.get(key) : null;
+      if (!b) return;
+
+      if (e.type === "income") b.income += Number(e.amount) || 0;
+      if (e.type === "outgoing") b.outgoing += Number(e.amount) || 0;
+    });
+
+    const incomeData = buckets.map(b => b.income);
+    const outgoingData = buckets.map(b => b.outgoing);
+
+    const ctx = document.getElementById("moneyChart");
+    if (moneyChart) moneyChart.destroy();
+
+    moneyChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label:"Income", data: incomeData },
+          { label:"Expenses", data: outgoingData }
+        ]
+      },
+      options: { responsive:true }
+    });
+  }
+
+  return { render };
+})();
+
+document.getElementById("moneyRange").addEventListener("change", Money.render);
+Money.render();
+
+/* =========================================================
+  BLOCK 7 — SPENDING BY CATEGORY (THIS MONTH)
+========================================================= */
+(function SpendingByCategory(){
   const now = new Date();
-  const thisWs = startOfWeekMonday(now);
+  const keyThisMonth = monthKey(now);
 
-  for (let i=7; i>=0; i--){
-    const ws = new Date(thisWs);
-    ws.setDate(ws.getDate() - i*7);
-    const key = localDateKey(ws);
-    buckets.push({ key, income:0, outgoing:0 });
-    labels.push(key.slice(5)); // MM-DD
-  }
-
-  const bucketMap = new Map(buckets.map(b => [b.key, b]));
+  // Use finance categories list for consistent ordering, but include unknowns too.
+  const sums = {};
 
   finEntries.forEach(e => {
+    if (e.type !== "outgoing") return;
     const d = new Date((e.date || "") + "T12:00:00");
     if (Number.isNaN(d.getTime())) return;
+    if (monthKey(d) !== keyThisMonth) return;
 
-    const wsKey = weekStartKey(d);
-    const b = bucketMap.get(wsKey);
-    if (!b) return;
-
-    if (e.type === "income") b.income += Number(e.amount) || 0;
-    if (e.type === "outgoing") b.outgoing += Number(e.amount) || 0;
+    const cat = (e.category || "Other");
+    sums[cat] = (sums[cat] || 0) + (Number(e.amount) || 0);
   });
 
-  const incomeData = buckets.map(b => b.income);
-  const outgoingData = buckets.map(b => b.outgoing);
+  // Build labels: known categories first, then extras
+  const known = Array.isArray(finCats) ? finCats : [];
+  const extras = Object.keys(sums).filter(c => !known.some(k => String(k).toLowerCase() === String(c).toLowerCase()));
+  const labels = [...known.filter(c => sums[c] > 0), ...extras.filter(c => sums[c] > 0)];
 
-  new Chart(document.getElementById("moneyChart"), {
-    type: "bar",
+  const data = labels.map(l => sums[l] || 0);
+
+  new Chart(document.getElementById("spendChart"), {
+    type: "doughnut",
     data: {
-      labels,
-      datasets: [
-        { label:"Income", data: incomeData },
-        { label:"Outgoing", data: outgoingData }
-      ]
+      labels: labels.length ? labels : ["(none)"],
+      datasets: [{ data: labels.length ? data : [0] }]
     },
     options: { responsive:true }
   });
 })();
 
 /* =========================================================
-  BLOCK 7 — CALENDAR (month view with missed/completed)
+  BLOCK 8 — CALENDAR (month view, ✔/✖/•)
 ========================================================= */
 const Calendar = (() => {
   const grid = document.getElementById("calGrid");
   const title = document.getElementById("calTitle");
-
   let view = new Date(); // current month
-
   const dows = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
   function render(){
@@ -598,16 +715,13 @@ const Calendar = (() => {
     const year = view.getFullYear();
     const month = view.getMonth();
 
-    title.textContent = `Daily Completion Calendar — ${view.toLocaleString(undefined, { month:"long" })} ${year}`;
+    title.textContent = `${view.toLocaleString(undefined, { month:"long" })} ${year}`;
 
-    // month start
     const first = new Date(year, month, 1);
     const last = new Date(year, month+1, 0);
 
-    // convert to Mon=0..Sun=6
-    let firstIdx = dayIndexMon0(first); // 0..6
+    let firstIdx = dayIndexMon0(first);
 
-    // leading blanks
     for (let i=0; i<firstIdx; i++){
       const el = document.createElement("div");
       el.className = "day empty";
@@ -626,43 +740,33 @@ const Calendar = (() => {
       const num = document.createElement("div");
       num.className = "dayNum";
       num.textContent = day;
-      el.appendChild(num);
 
-      let badge = document.createElement("div");
-      badge.className = "badge";
+      const mark = document.createElement("div");
+      mark.className = "mark";
 
       if (key > todayKey){
-        badge.classList.add("future");
-        badge.textContent = "Future";
+        mark.classList.add("future");
+        mark.textContent = "•";
       } else {
         const ok = isDailyCompleteOnDate(d);
         if (ok){
-          badge.classList.add("ok");
-          badge.textContent = "Completed";
+          mark.classList.add("ok");
+          mark.textContent = "✔";
         } else {
-          badge.classList.add("miss");
-          badge.textContent = "Missed";
+          mark.classList.add("miss");
+          mark.textContent = "✖";
         }
       }
 
-      el.appendChild(badge);
+      el.appendChild(num);
+      el.appendChild(mark);
       grid.appendChild(el);
     }
   }
 
-  function prev(){
-    view = new Date(view.getFullYear(), view.getMonth()-1, 1);
-    render();
-  }
-  function next(){
-    view = new Date(view.getFullYear(), view.getMonth()+1, 1);
-    render();
-  }
-  function today(){
-    view = new Date();
-    view = new Date(view.getFullYear(), view.getMonth(), 1);
-    render();
-  }
+  function prev(){ view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); }
+  function next(){ view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); }
+  function today(){ const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); render(); }
 
   return { render, prev, next, today };
 })();
