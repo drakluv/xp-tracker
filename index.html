@@ -13,16 +13,16 @@
     --muted:#6b7280;
     --line:rgba(0,0,0,0.10);
 
-    /* Tabs / page theme */
     --primary:#7c3aed;
     --primary2:#2563eb;
 
     --accent:#22c55e;
     --danger:#ef4444;
 
-    /* HUD (top-right level/gp/menu) theme */
+    /* HUD theme */
     --hud1:#0ea5e9;
     --hud2:#22c55e;
+    --hud3:#f97316; /* streak accent */
     --hudBg: rgba(255,255,255,0.14);
     --hudBorder: rgba(255,255,255,0.22);
 
@@ -42,184 +42,126 @@
   }
 
   *{ box-sizing:border-box; }
-  body{
-    margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-  }
+  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
 
-  /* Sticky top bar */
   .topbar{
-    position: sticky;
-    top: 0;
-    z-index: 999;
+    position: sticky; top: 0; z-index: 999;
     padding: 14px 14px;
     background: linear-gradient(90deg, var(--primary), var(--primary2));
-    color:#fff;
-    box-shadow: var(--shadow);
+    color:#fff; box-shadow: var(--shadow);
   }
-
   .topbarInner{
-    max-width: 1100px;
-    margin: 0 auto;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
+    max-width: 1100px; margin: 0 auto;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
   }
 
-  .leftTop{
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
+  .leftTop{ flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+  .appTitle{ font-weight:900; font-size:18px; letter-spacing:0.2px; margin:0; }
 
-  .appTitle{
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: 0.2px;
-    margin:0;
-  }
-
-  .tabs{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-
+  .tabs{ display:flex; gap:10px; flex-wrap:wrap; }
   .tabBtn{
     border:1px solid rgba(255,255,255,0.28);
     background: rgba(255,255,255,0.16);
     color:#fff;
     padding:10px 12px;
-    border-radius: 999px;
+    border-radius:999px;
     cursor:pointer;
-    font-weight: 900;
+    font-weight:900;
   }
-  .tabBtn.active{
-    background: rgba(255,255,255,0.30);
-    border-color: rgba(255,255,255,0.45);
-  }
+  .tabBtn.active{ background: rgba(255,255,255,0.30); border-color: rgba(255,255,255,0.45); }
 
-  /* TOP RIGHT HUD */
-  .hud{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:10px;
-    flex-shrink:0;
-  }
+  /* HUD */
+  .hud{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex-shrink:0; }
 
-  /* Menu above level+gp */
   .menuWrap{ position:relative; width: fit-content; }
   .menuBtn{
     border:1px solid var(--hudBorder);
     background: linear-gradient(90deg, rgba(14,165,233,0.28), rgba(34,197,94,0.22));
     color:#fff;
     padding:10px 12px;
-    border-radius: 999px;
+    border-radius:999px;
     cursor:pointer;
-    font-weight: 900;
-    min-width: 44px;
+    font-weight:900;
+    min-width:44px;
     text-align:center;
   }
-
   .menu{
-    position:absolute;
-    right:0;
-    top:48px;
-    width: 230px;
+    position:absolute; right:0; top:48px;
+    width: 240px;
     background: var(--card);
     color: var(--text);
     border:1px solid var(--line);
-    border-radius: 14px;
+    border-radius:14px;
     box-shadow: var(--shadow);
-    padding: 10px;
+    padding:10px;
     display:none;
-    z-index: 1000;
+    z-index:1000;
   }
   .menu.open{ display:block; }
-
-  .menuItem{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:10px;
-    border-radius: 12px;
-  }
+  .menuItem{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; border-radius:12px; }
   .menuItem:hover{ background: rgba(0,0,0,0.06); }
   [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
-
-  .menuLink{
-    display:block;
-    padding:10px;
-    border-radius: 12px;
-    color: var(--text);
-    text-decoration:none;
-    font-weight: 900;
-  }
+  .menuLink{ display:block; padding:10px; border-radius:12px; color:var(--text); text-decoration:none; font-weight:900; }
   .menuLink:hover{ background: rgba(0,0,0,0.06); }
   [data-theme="dark"] .menuLink:hover{ background: rgba(255,255,255,0.06); }
+  .switch{ width:22px; height:22px; accent-color: var(--accent); }
 
-  .switch{
-    width: 22px;
-    height: 22px;
-    accent-color: var(--accent);
-  }
-
-  /* Level row (desktop) */
+  /* Level row (DAILY XP) */
   .lvlRow{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    width: 320px;
-    max-width: 100%;
+    display:flex; align-items:center; gap:10px;
+    width:320px; max-width:100%;
     justify-content:flex-end;
   }
   .lvlTag{
-    font-weight: 900;
-    padding: 8px 10px;
-    border-radius: 999px;
+    font-weight:900; padding:8px 10px;
+    border-radius:999px;
     background: var(--hudBg);
     border:1px solid var(--hudBorder);
     white-space:nowrap;
   }
   .barWrap{
-    flex:1;
-    height: 14px;
-    border-radius: 999px;
-    overflow:hidden;
+    flex:1; height:14px;
+    border-radius:999px; overflow:hidden;
     background: var(--hudBg);
     border:1px solid var(--hudBorder);
   }
   .barFill{
-    width: 0%;
-    height: 100%;
+    width:0%; height:100%;
     background: linear-gradient(90deg,var(--hud1),var(--hud2));
     transition: width 180ms ease;
   }
-  .barText{
-    font-weight: 900;
-    font-size: 12px;
+  .barText{ font-weight:900; font-size:12px; white-space:nowrap; opacity:0.95; }
+
+  /* Streak row */
+  .streakRow{
+    display:flex; align-items:center; gap:10px;
+    width:320px; max-width:100%;
+    justify-content:flex-end;
+  }
+  .streakTag{
+    font-weight:900;
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(249,115,22,0.22);
+    border:1px solid rgba(249,115,22,0.35);
     white-space:nowrap;
-    opacity: 0.95;
+  }
+  .streakWrap{
+    flex:1; height:10px;
+    border-radius:999px; overflow:hidden;
+    background: rgba(249,115,22,0.12);
+    border:1px solid rgba(249,115,22,0.25);
+  }
+  .streakFill{
+    width:0%; height:100%;
+    background: linear-gradient(90deg,#f97316,#facc15);
+    transition: width 200ms ease;
   }
 
   /* GP pill */
-  .gpRow{
-    display:flex;
-    justify-content:flex-end;
-    width: 320px;
-    max-width: 100%;
-  }
+  .gpRow{ display:flex; justify-content:flex-end; width:320px; max-width:100%; }
   .pill{
-    display:flex;
-    align-items:center;
-    gap:10px;
+    display:flex; align-items:center; gap:10px;
     padding:10px 12px;
     border-radius:999px;
     background: var(--hudBg);
@@ -231,155 +173,65 @@
   }
   .pill small{ opacity:0.9; font-weight:800; }
 
-  /* Page */
-  .page{
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 16px;
-  }
+  .page{ max-width:1100px; margin:0 auto; padding:16px; }
   .card{
     background: var(--card);
     border:1px solid var(--line);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 14px;
-    margin-bottom: 14px;
+    padding:14px;
+    margin-bottom:14px;
   }
-  h2{
-    margin:0 0 10px 0;
-    font-size: 16px;
-    letter-spacing: 0.2px;
-  }
-  .muted{ color: var(--muted); font-size: 12px; }
+  h2{ margin:0 0 10px 0; font-size:16px; letter-spacing:0.2px; }
+  .muted{ color:var(--muted); font-size:12px; }
 
-  /* Shared row layout */
   .row{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-    padding: 10px 0;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:10px; padding:10px 0;
     border-bottom:1px solid var(--line);
   }
   .row:last-child{ border-bottom:none; }
-
-  .left{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    flex:1;
-    min-width:0;
-  }
-  .cb{
-    width:22px;
-    height:22px;
-    accent-color: var(--accent);
-    flex-shrink:0;
-    margin-top: 2px;
-  }
-  .text{
-    white-space: normal;
-    word-break: break-word;
-    line-height: 1.25;
-  }
-  .done{
-    text-decoration: line-through;
-    opacity: 0.55;
-  }
-  .right{
-    display:flex;
-    gap:8px;
-    flex-shrink:0;
-    align-items:flex-start;
-  }
+  .left{ display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0; }
+  .cb{ width:22px; height:22px; accent-color: var(--accent); flex-shrink:0; margin-top:2px; }
+  .text{ white-space: normal; word-break: break-word; line-height:1.25; }
+  .done{ text-decoration: line-through; opacity:0.55; }
+  .right{ display:flex; gap:8px; flex-shrink:0; align-items:flex-start; }
 
   button{
-    padding: 10px 12px;
-    border:none;
-    border-radius: 12px;
-    cursor:pointer;
-    font-weight: 900;
-    color:#fff;
+    padding:10px 12px; border:none; border-radius:12px;
+    cursor:pointer; font-weight:900; color:#fff;
     background: linear-gradient(90deg,var(--accent),#16a34a);
   }
-
-  /* X delete button */
   .xBtn{
-    width: 34px;
-    height: 34px;
-    border-radius: 999px;
-    padding: 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    width:34px; height:34px; border-radius:999px;
+    padding:0; display:flex; align-items:center; justify-content:center;
     background: linear-gradient(90deg,var(--danger),#dc2626);
-    font-size: 18px;
-    line-height: 1;
+    font-size:18px; line-height:1;
   }
 
   input, select{
     width:100%;
-    padding: 12px 12px;
-    border-radius: 12px;
+    padding:12px 12px;
+    border-radius:12px;
     border:1px solid var(--line);
     background: transparent;
     color: var(--text);
     outline:none;
   }
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .grid3{ display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px; }
 
-  .grid2{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:10px;
-  }
-  .grid3{
-    display:grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap:10px;
-  }
+  .catBlock{ border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; }
+  .catHeader{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .catTitle{ font-weight:900; letter-spacing:0.2px; }
 
-  /* Category blocks */
-  .catBlock{
-    border:1px solid var(--line);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-  .catHeader{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom: 8px;
-  }
-  .catTitle{
-    font-weight: 900;
-    letter-spacing: 0.2px;
-  }
-
-  /* Rewards */
   .rewardRow{
-    border-radius: 12px;
-    padding: 10px 12px;
-    margin-bottom: 10px;
+    border-radius:12px; padding:10px 12px; margin-bottom:10px;
     border:1px solid var(--line);
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
   }
-  .rewardRow:last-child{ margin-bottom:0; }
-  .rewardLeft{
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    flex:1;
-    min-width:0;
-  }
-  .buyBtn{
-    min-width: 84px;
-    text-align:center;
-  }
+  .rewardLeft{ display:flex; gap:10px; align-items:flex-start; flex:1; min-width:0; }
+  .buyBtn{ min-width:84px; text-align:center; }
   .rewardGlow{
     box-shadow: 0 0 0 2px rgba(34,197,94,.25), 0 0 22px rgba(34,197,94,.30);
     animation: pulse 1.6s ease-in-out infinite;
@@ -390,46 +242,27 @@
     100%{ box-shadow: 0 0 0 2px rgba(34,197,94,.18), 0 0 14px rgba(34,197,94,.18); }
   }
 
-  /* Daily table */
-  .tableWrap{
-    width:100%;
-    overflow:auto;
-    border:1px solid var(--line);
-    border-radius: 12px;
-  }
-  table{
-    width:100%;
-    border-collapse: collapse;
-    min-width: 820px;
-  }
-  th, td{
-    border-bottom:1px solid var(--line);
-    padding: 10px;
-    vertical-align: top;
-    text-align:left;
-  }
-  th{
-    position: sticky;
-    top: 0;
-    background: var(--card);
-    z-index: 2;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.3px;
-  }
-  .taskCol{ min-width: 220px; font-weight: 900; }
-  .ptsCol{ width: 90px; font-weight: 900; white-space: nowrap; }
-  .dayCell{ width: 90px; text-align:center; }
-  .dayCell input{ width: 22px; height: 22px; accent-color: var(--accent); }
+  .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+  table{ width:100%; border-collapse: collapse; min-width: 820px; }
+  th, td{ border-bottom:1px solid var(--line); padding:10px; vertical-align: top; text-align:left; }
+  th{ position: sticky; top: 0; background: var(--card); z-index:2; font-size:12px; color:var(--muted); letter-spacing:0.3px; }
+  .taskCol{ min-width:220px; font-weight:900; }
+  .ptsCol{ width:90px; font-weight:900; white-space:nowrap; }
+  .dayCell{ width:90px; text-align:center; }
+  .dayCell input{ width:22px; height:22px; accent-color: var(--accent); }
 
-  /* PHONE: actually smaller level bar */
+  /* phone HUD smaller */
   @media (max-width: 720px){
-    .lvlRow, .gpRow{ width: 160px; }     /* smaller overall */
-    .lvlTag{ padding: 5px 7px; font-size: 16px; }
-    .barWrap{ height: 16px; }             /* smaller bar */
-    .barText{ font-size: 16px; }
-    .menu{ top: 54px; width: 210px; }    /* match HUD width */
-    .tabBtn{ padding: 9px 10px; }
+    .lvlRow, .streakRow, .gpRow{ width: 210px; }
+    .lvlTag{ padding:5px 7px; font-size:11px; }
+    .barWrap{ height:8px; }
+    .barText{ font-size:10px; }
+
+    .streakTag{ padding:4px 6px; font-size:10px; }
+    .streakWrap{ height:6px; }
+
+    .menu{ top:54px; width:210px; }
+    .tabBtn{ padding:9px 10px; }
   }
 </style>
 </head>
@@ -457,13 +290,21 @@
           </div>
           <a class="menuLink" href="./finances.html">Finances</a>
           <a class="menuLink" href="./jobs.html">Jobs</a>
+          <a class="menuLink" href="./statistics.html">Statistics</a>
         </div>
       </div>
 
+      <!-- LEVEL = DAILY XP -->
       <div class="lvlRow">
         <div class="lvlTag" id="lvlTag">LVL 1</div>
         <div class="barWrap"><div class="barFill" id="barFill"></div></div>
         <div class="barText" id="barText">0/50</div>
+      </div>
+
+      <!-- STREAK = DAILY ONLY -->
+      <div class="streakRow">
+        <div class="streakTag" id="streakTag">🔥 0 Day Streak</div>
+        <div class="streakWrap"><div class="streakFill" id="streakFill"></div></div>
       </div>
 
       <div class="gpRow">
@@ -510,6 +351,7 @@
       <div class="tableWrap">
         <table id="dailyTable"></table>
       </div>
+      <div class="muted">Streak increases only when ALL daily tasks for a day are completed.</div>
     </div>
 
     <div class="card">
@@ -517,6 +359,12 @@
       <div class="grid3">
         <input id="newDailyName" placeholder="Daily task name" />
         <input id="newDailyPts" type="number" placeholder="GP per check" />
+        <select id="newDailyIsGym">
+          <option value="0">Normal</option>
+          <option value="1">Gym</option>
+        </select>
+      </div>
+      <div style="margin-top:10px;">
         <button onclick="Daily.addRow()">Add</button>
       </div>
     </div>
@@ -544,7 +392,7 @@
 
 <script>
 /* =========================================================
-  BLOCK 0 — STORAGE + UTILITIES
+  BLOCK 0 — STORAGE + TIME HELPERS (PHONE LOCAL TIME)
 ========================================================= */
 const LS = {
   get(key, fallback){
@@ -559,12 +407,55 @@ function uuid(){
 }
 function clamp0(n){ return n < 0 ? 0 : n; }
 
+function localDateKey(d=new Date()){
+  // phone local date as YYYY-MM-DD
+  const yr = d.getFullYear();
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const da = String(d.getDate()).padStart(2,'0');
+  return `${yr}-${mo}-${da}`;
+}
+function startOfWeekMonday(d){
+  const x = new Date(d);
+  const day = x.getDay(); // 0 Sun..6 Sat
+  const diff = (day === 0 ? -6 : 1 - day);
+  x.setDate(x.getDate() + diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function weekKeyFor(d){
+  const m = startOfWeekMonday(d);
+  return localDateKey(m);
+}
+function dayIndexMon0(d){
+  const day = d.getDay();
+  return (day === 0) ? 6 : (day - 1); // Mon=0..Sun=6
+}
+
 /* =========================================================
-  BLOCK 1 — ECONOMY (GP + LEVEL)
+  BLOCK 1 — EVENT LOG (FOR STATISTICS)
+========================================================= */
+const Log = (() => {
+  let events = LS.get("eventLog_v1", []);
+  function add(evt){
+    // evt: {ts, kind, action, gp, dailyXP, meta}
+    events.push(evt);
+    // keep last 180 days to avoid bloat
+    const cutoff = Date.now() - 180*24*60*60*1000;
+    events = events.filter(e => e.ts >= cutoff);
+    LS.set("eventLog_v1", events);
+  }
+  function list(){ return events; }
+  return { add, list };
+})();
+
+/* =========================================================
+  BLOCK 2 — ECONOMY
+  GP = spendable
+  DAILY_XP = level XP (ONLY from Daily)
 ========================================================= */
 const Economy = (() => {
   let gp = LS.get("gp", 0);
-  let earnedXP = LS.get("earnedXP", 0);
+  let dailyXP = LS.get("dailyXP", 0);
 
   function xpToNext(level){ return 50 + (level - 1) * 25; }
   function computeLevel(xp){
@@ -578,44 +469,62 @@ const Economy = (() => {
     }
   }
 
-  function add(pts){
+  function addGP(pts, meta={}){
     pts = Number(pts) || 0;
     gp = clamp0(gp + pts);
-    earnedXP = clamp0(earnedXP + pts);
     persist();
     UI.renderHeader();
+    Log.add({ ts: Date.now(), kind:"gp", action:"add", gp: pts, dailyXP: 0, meta });
   }
-
-  function remove(pts){
+  function removeGP(pts, meta={}){
     pts = Number(pts) || 0;
     gp = clamp0(gp - pts);
-    earnedXP = clamp0(earnedXP - pts);
     persist();
     UI.renderHeader();
+    Log.add({ ts: Date.now(), kind:"gp", action:"remove", gp: pts, dailyXP: 0, meta });
   }
 
-  function spend(cost){
+  // Daily completion: earns GP + DailyXP
+  function addDaily(pts, meta={}){
+    pts = Number(pts) || 0;
+    gp = clamp0(gp + pts);
+    dailyXP = clamp0(dailyXP + pts);
+    persist();
+    UI.renderHeader();
+    Log.add({ ts: Date.now(), kind:"daily", action:"check", gp: pts, dailyXP: pts, meta });
+  }
+  function removeDaily(pts, meta={}){
+    pts = Number(pts) || 0;
+    gp = clamp0(gp - pts);
+    dailyXP = clamp0(dailyXP - pts);
+    persist();
+    UI.renderHeader();
+    Log.add({ ts: Date.now(), kind:"daily", action:"uncheck", gp: pts, dailyXP: pts, meta });
+  }
+
+  function spend(cost, meta={}){
     cost = Number(cost) || 0;
     if (gp < cost) return false;
     gp = clamp0(gp - cost);
     persist();
     UI.renderHeader();
+    Log.add({ ts: Date.now(), kind:"gp", action:"spend", gp: cost, dailyXP: 0, meta });
     return true;
   }
 
   function getGP(){ return gp; }
-  function getXP(){ return earnedXP; }
+  function getDailyXP(){ return dailyXP; }
 
   function persist(){
     LS.set("gp", gp);
-    LS.set("earnedXP", earnedXP);
+    LS.set("dailyXP", dailyXP);
   }
 
-  return { add, remove, spend, getGP, getXP, computeLevel };
+  return { addGP, removeGP, addDaily, removeDaily, spend, getGP, getDailyXP, computeLevel };
 })();
 
 /* =========================================================
-  BLOCK 2 — THEME + MENU
+  BLOCK 3 — THEME + MENU
 ========================================================= */
 const Theme = (() => {
   const darkToggle = document.getElementById("darkToggle");
@@ -626,9 +535,7 @@ const Theme = (() => {
   }
   function init(){
     apply(LS.get("theme", "light"));
-    darkToggle.addEventListener("change", () => {
-      apply(darkToggle.checked ? "dark" : "light");
-    });
+    darkToggle.addEventListener("change", () => apply(darkToggle.checked ? "dark" : "light"));
   }
   return { init };
 })();
@@ -637,37 +544,26 @@ const Menu = (() => {
   const menuBtn = document.getElementById("menuBtn");
   const menu = document.getElementById("menu");
   function setOpen(open){
-    if (open){
-      menu.classList.add("open");
-      menuBtn.setAttribute("aria-expanded","true");
-    } else {
-      menu.classList.remove("open");
-      menuBtn.setAttribute("aria-expanded","false");
-    }
+    if (open){ menu.classList.add("open"); menuBtn.setAttribute("aria-expanded","true"); }
+    else { menu.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); }
   }
   function init(){
-    menuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      setOpen(!menu.classList.contains("open"));
-    });
+    menuBtn.addEventListener("click", (e) => { e.stopPropagation(); setOpen(!menu.classList.contains("open")); });
     document.addEventListener("click", () => setOpen(false));
   }
   return { init };
 })();
 
 /* =========================================================
-  BLOCK 3 — TABS
+  BLOCK 4 — TABS
 ========================================================= */
 const Tabs = (() => {
   let current = LS.get("tab", "tasks");
   function set(tab){
-    current = tab;
-    LS.set("tab", tab);
-
+    current = tab; LS.set("tab", tab);
     document.getElementById("viewTasks").style.display = (tab === "tasks") ? "" : "none";
     document.getElementById("viewDaily").style.display = (tab === "daily") ? "" : "none";
     document.getElementById("viewRewards").style.display = (tab === "rewards") ? "" : "none";
-
     document.getElementById("tabTasks").classList.toggle("active", tab === "tasks");
     document.getElementById("tabDaily").classList.toggle("active", tab === "daily");
     document.getElementById("tabRewards").classList.toggle("active", tab === "rewards");
@@ -677,35 +573,38 @@ const Tabs = (() => {
 })();
 
 /* =========================================================
-  BLOCK 4 — UI (HEADER)
+  BLOCK 5 — UI (HEADER)
 ========================================================= */
 const UI = (() => {
   function renderHeader(){
     document.getElementById("gpVal").textContent = Economy.getGP();
-    const lvl = Economy.computeLevel(Economy.getXP());
+    const lvl = Economy.computeLevel(Economy.getDailyXP());
     document.getElementById("lvlTag").textContent = `LVL ${lvl.level}`;
     const pct = Math.max(0, Math.min(100, (lvl.inLevel / lvl.need) * 100));
     document.getElementById("barFill").style.width = pct.toFixed(1) + "%";
     document.getElementById("barText").textContent = `${lvl.inLevel}/${lvl.need}`;
   }
-  return { renderHeader };
+  function renderStreak(streak){
+    document.getElementById("streakTag").textContent = `🔥 ${streak} Day Streak`;
+    const pct = Math.min(100, (streak / 14) * 100); // bar fills at 14 days (change if you want)
+    document.getElementById("streakFill").style.width = pct + "%";
+  }
+  return { renderHeader, renderStreak };
 })();
 
 /* =========================================================
-  BLOCK 5 — TASKS + CATEGORIES
+  BLOCK 6 — TASKS + CATEGORIES (TASKS ONLY GIVE GP)
 ========================================================= */
 const TasksConfig = { HIDE_AFTER_MS: 5 * 60 * 1000 };
 
 const Categories = (() => {
   let categories = LS.get("categories_v0", [{ id: "cat_general", name: "General" }]);
-
   function list(){ return categories; }
   function persist(){ LS.set("categories_v0", categories); }
 
   function add(){
     const name = document.getElementById("newCatName").value.trim();
     if (!name) return alert("Enter a category name.");
-
     const id = "cat_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
     if (categories.some(c => c.id === id)) return alert("Category already exists.");
 
@@ -729,9 +628,7 @@ const Categories = (() => {
 })();
 
 const Tasks = (() => {
-  // 2) EMPTY by default (user adds them)
-  let tasks = LS.get("tasks_v0", []);
-
+  let tasks = LS.get("tasks_v0", []); // empty by default
   function persist(){ LS.set("tasks_v0", tasks); }
 
   function renderCategorySelect(){
@@ -739,16 +636,13 @@ const Tasks = (() => {
     sel.innerHTML = "";
     Categories.list().forEach(c => {
       const opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.name;
+      opt.value = c.id; opt.textContent = c.name;
       sel.appendChild(opt);
     });
   }
 
   function moveTasksToGeneral(catId){
-    tasks.forEach(t => {
-      if (t.catId === catId) t.catId = "cat_general";
-    });
+    tasks.forEach(t => { if (t.catId === catId) t.catId = "cat_general"; });
     persist();
   }
 
@@ -756,7 +650,6 @@ const Tasks = (() => {
     if (!task.done || !task.doneAt) return false;
     return (Date.now() - task.doneAt) >= TasksConfig.HIDE_AFTER_MS;
   }
-
   function scheduleAutoHide(task){
     if (!task.done || !task.doneAt) return;
     const remaining = TasksConfig.HIDE_AFTER_MS - (Date.now() - task.doneAt);
@@ -771,13 +664,10 @@ const Tasks = (() => {
     const name = document.getElementById("newTaskName").value.trim();
     const pts = parseInt(document.getElementById("newTaskPts").value, 10);
     const catId = document.getElementById("newTaskCat").value;
-
     if (!name || Number.isNaN(pts)) return alert("Add task name + GP.");
     if (!catId) return alert("Choose a category.");
-
     tasks.push({ id: uuid(), name, pts, done:false, catId, doneAt:null });
     persist();
-
     document.getElementById("newTaskName").value = "";
     document.getElementById("newTaskPts").value = "";
     render();
@@ -786,7 +676,7 @@ const Tasks = (() => {
   function remove(taskId){
     const t = tasks.find(x => x.id === taskId);
     if (!t) return;
-    if (t.done) Economy.remove(t.pts);
+    if (t.done) Economy.removeGP(t.pts, {source:"task_delete", taskId});
     tasks = tasks.filter(x => x.id !== taskId);
     persist();
     render();
@@ -798,14 +688,16 @@ const Tasks = (() => {
     if (!t) return;
 
     if (checked && !t.done){
-      Economy.add(t.pts);
+      Economy.addGP(t.pts, {source:"task_check", taskId});
       t.done = true;
       t.doneAt = Date.now();
+      Log.add({ ts: Date.now(), kind:"task", action:"complete", gp: t.pts, dailyXP: 0, meta: { catId: t.catId, taskName: t.name } });
       scheduleAutoHide(t);
     } else if (!checked && t.done){
-      Economy.remove(t.pts);
+      Economy.removeGP(t.pts, {source:"task_uncheck", taskId});
       t.done = false;
       t.doneAt = null;
+      Log.add({ ts: Date.now(), kind:"task", action:"undo", gp: t.pts, dailyXP: 0, meta: { catId: t.catId, taskName: t.name } });
     }
 
     persist();
@@ -831,9 +723,7 @@ const Tasks = (() => {
 
       if (cat.id !== "cat_general"){
         const x = document.createElement("button");
-        x.className = "xBtn";
-        x.textContent = "×";
-        x.title = "Delete category";
+        x.className = "xBtn"; x.textContent = "×"; x.title="Delete category";
         x.addEventListener("click", () => Categories.remove(cat.id));
         header.appendChild(x);
       }
@@ -898,12 +788,10 @@ const Tasks = (() => {
 })();
 
 /* =========================================================
-  BLOCK 6 — REWARDS
+  BLOCK 7 — REWARDS
 ========================================================= */
 const Rewards = (() => {
-  // 2) EMPTY by default (user adds them)
-  let rewards = LS.get("rewards_v0", []);
-
+  let rewards = LS.get("rewards_v0", []); // empty by default
   function persist(){ LS.set("rewards_v0", rewards); }
 
   function add(){
@@ -913,7 +801,6 @@ const Rewards = (() => {
 
     rewards.push({ id: uuid(), name, cost });
     persist();
-
     document.getElementById("newRewardName").value = "";
     document.getElementById("newRewardCost").value = "";
     render();
@@ -928,12 +815,10 @@ const Rewards = (() => {
   function buy(id){
     const r = rewards.find(x => x.id === id);
     if (!r) return;
-    if (Economy.spend(r.cost)){
-      render();
+    if (Economy.spend(r.cost, {source:"reward_buy", rewardId:id, rewardName:r.name})){
       alert(`Claimed: ${r.name}`);
-    } else {
-      alert("Not enough GP.");
-    }
+      render();
+    } else alert("Not enough GP.");
   }
 
   function render(){
@@ -972,11 +857,8 @@ const Rewards = (() => {
       right.className = "right";
 
       const x = document.createElement("button");
-      x.className = "xBtn";
-      x.textContent = "×";
-      x.title = "Delete reward";
+      x.className = "xBtn"; x.textContent = "×"; x.title="Delete reward";
       x.addEventListener("click", () => remove(r.id));
-
       right.appendChild(x);
 
       row.appendChild(left);
@@ -989,27 +871,18 @@ const Rewards = (() => {
 })();
 
 /* =========================================================
-  BLOCK 7 — DAILY (kept minimal defaults)
+  BLOCK 8 — DAILY (WEEK TABLE + STREAK RULES)
+  - daily row has {isGym}
+  - checking daily gives GP + DAILY XP
 ========================================================= */
 const Daily = (() => {
-  let rows = LS.get("dailyRows_v0", []);
-  let checks = LS.get("dailyChecks_v0", {});
+  let rows = LS.get("dailyRows_v0", []);        // user-defined
+  let checks = LS.get("dailyChecks_v0", {});    // per-week checkbox grid
 
-  function startOfWeekMonday(d){
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = (day === 0 ? -6 : 1 - day);
-    date.setDate(date.getDate() + diff);
-    date.setHours(0,0,0,0);
-    return date;
-  }
-  function weekKeyFor(d){
-    const m = startOfWeekMonday(d);
-    return m.toISOString().slice(0,10);
-  }
-  const weekKey = weekKeyFor(new Date());
+  function persistRows(){ LS.set("dailyRows_v0", rows); }
+  function persistChecks(){ LS.set("dailyChecks_v0", checks); }
 
-  function ensureWeek(){
+  function ensureWeek(weekKey){
     if (!checks[weekKey]) checks[weekKey] = {};
     for (const row of rows){
       if (!checks[weekKey][row.id]){
@@ -1019,66 +892,103 @@ const Daily = (() => {
     persistChecks();
   }
 
-  function persistRows(){ LS.set("dailyRows_v0", rows); }
-  function persistChecks(){ LS.set("dailyChecks_v0", checks); }
-
   function addRow(){
     const name = document.getElementById("newDailyName").value.trim();
     const pts = parseInt(document.getElementById("newDailyPts").value, 10);
+    const isGym = document.getElementById("newDailyIsGym").value === "1";
     if (!name || Number.isNaN(pts)) return alert("Add daily name + GP.");
 
-    const row = { id: uuid(), name, pts };
+    const row = { id: uuid(), name, pts, isGym };
     rows.push(row);
     persistRows();
 
-    ensureWeek();
-    checks[weekKey][row.id] = { 0:false,1:false,2:false,3:false,4:false,5:false,6:false };
+    // ensure this week has keys
+    const wk = weekKeyFor(new Date());
+    ensureWeek(wk);
+    checks[wk][row.id] = { 0:false,1:false,2:false,3:false,4:false,5:false,6:false };
     persistChecks();
 
     document.getElementById("newDailyName").value = "";
     document.getElementById("newDailyPts").value = "";
+    document.getElementById("newDailyIsGym").value = "0";
+
     render();
-    Rewards.render();
   }
 
   function removeRow(rowId){
-    ensureWeek();
+    // reverse any checked boxes in current week (net)
+    const now = new Date();
+    const wk = weekKeyFor(now);
+    ensureWeek(wk);
     const row = rows.find(r => r.id === rowId);
-    const week = checks[weekKey][rowId] || {};
-    let count = 0;
-    for (let i=0;i<7;i++) if (week[i]) count++;
-    if (row && count > 0) Economy.remove(count * (Number(row.pts) || 0));
+    if (row){
+      const weekGrid = checks[wk][rowId] || {};
+      let count = 0;
+      for (let i=0;i<7;i++) if (weekGrid[i]) count++;
+      if (count > 0){
+        Economy.removeDaily(count * row.pts, {source:"daily_row_delete", rowId, rowName: row.name});
+      }
+    }
 
     rows = rows.filter(r => r.id !== rowId);
-    delete checks[weekKey][rowId];
-
     persistRows();
+
+    // remove from all weeks
+    Object.keys(checks).forEach(wkKey => { if (checks[wkKey]) delete checks[wkKey][rowId]; });
     persistChecks();
 
     render();
     Rewards.render();
+    Streak.evaluateAndRender(); // could affect "all completed" logic
   }
 
   function toggle(rowId, dayIndex, nowChecked){
-    ensureWeek();
+    const now = new Date();
+    const wk = weekKeyFor(now);
+    ensureWeek(wk);
+
     const row = rows.find(r => r.id === rowId);
     if (!row) return;
 
-    const was = !!checks[weekKey][rowId][dayIndex];
+    const was = !!checks[wk][rowId][dayIndex];
 
     if (nowChecked && !was){
-      Economy.add(row.pts);
-      checks[weekKey][rowId][dayIndex] = true;
+      checks[wk][rowId][dayIndex] = true;
+      persistChecks();
+
+      Economy.addDaily(row.pts, {source:"daily_check", rowId, rowName: row.name, dayIndex, weekKey: wk, isGym: row.isGym});
+      Log.add({ ts: Date.now(), kind:"daily_task", action:"check", gp: row.pts, dailyXP: row.pts, meta: { rowId, rowName: row.name, dayIndex, weekKey: wk, isGym: row.isGym } });
+
     } else if (!nowChecked && was){
-      Economy.remove(row.pts);
-      checks[weekKey][rowId][dayIndex] = false;
+      checks[wk][rowId][dayIndex] = false;
+      persistChecks();
+
+      Economy.removeDaily(row.pts, {source:"daily_uncheck", rowId, rowName: row.name, dayIndex, weekKey: wk, isGym: row.isGym});
+      Log.add({ ts: Date.now(), kind:"daily_task", action:"uncheck", gp: row.pts, dailyXP: row.pts, meta: { rowId, rowName: row.name, dayIndex, weekKey: wk, isGym: row.isGym } });
     }
-    persistChecks();
+
     Rewards.render();
+    Streak.evaluateAndRender();
+  }
+
+  function allDailyCompletedForDate(dateObj){
+    if (rows.length === 0) return false; // no dailies => no streak
+    const wk = weekKeyFor(dateObj);
+    ensureWeek(wk);
+    const idx = dayIndexMon0(dateObj);
+
+    for (const row of rows){
+      const cell = checks[wk]?.[row.id]?.[idx];
+      if (!cell) return false;
+    }
+    return true;
   }
 
   function render(){
-    ensureWeek();
+    const now = new Date();
+    const wk = weekKeyFor(now);
+    ensureWeek(wk);
+
     const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
     const table = document.getElementById("dailyTable");
     table.innerHTML = "";
@@ -1107,7 +1017,7 @@ const Daily = (() => {
 
       const tdName = document.createElement("td");
       tdName.className = "taskCol";
-      tdName.textContent = row.name;
+      tdName.textContent = row.isGym ? `🏋️ ${row.name}` : row.name;
 
       const tdPts = document.createElement("td");
       tdPts.className = "ptsCol";
@@ -1122,7 +1032,7 @@ const Daily = (() => {
 
         const cb = document.createElement("input");
         cb.type = "checkbox";
-        cb.checked = !!checks[weekKey][row.id][i];
+        cb.checked = !!checks[wk][row.id][i];
         cb.addEventListener("change", () => toggle(row.id, i, cb.checked));
 
         td.appendChild(cb);
@@ -1147,7 +1057,70 @@ const Daily = (() => {
     table.appendChild(tbody);
   }
 
-  return { addRow, render };
+  return { addRow, render, allDailyCompletedForDate };
+})();
+
+/* =========================================================
+  BLOCK 9 — STREAK SYSTEM (DAILY ONLY)
+  Rule:
+  - If ALL daily tasks for a day are completed by end of that day -> streak +1
+  - Else -> streak reset to 0
+  - Evaluates automatically on date change (phone local time)
+========================================================= */
+const Streak = (() => {
+  let streak = LS.get("dailyStreak_v1", 0);
+  let lastEvaluatedDate = LS.get("streakLastEvalDate_v1", null); // YYYY-MM-DD
+
+  function persist(){
+    LS.set("dailyStreak_v1", streak);
+    LS.set("streakLastEvalDate_v1", lastEvaluatedDate);
+  }
+
+  function evaluateDay(dateObj){
+    const ok = Daily.allDailyCompletedForDate(dateObj);
+    if (ok) streak += 1;
+    else streak = 0;
+  }
+
+  function evaluateAndRender(){
+    const todayKey = localDateKey(new Date());
+
+    // First run: set baseline to today (no backfill)
+    if (!lastEvaluatedDate){
+      lastEvaluatedDate = todayKey;
+      persist();
+      UI.renderStreak(streak);
+      return;
+    }
+
+    // If date changed since last evaluation, evaluate the day(s) that passed.
+    if (todayKey !== lastEvaluatedDate){
+      // evaluate previous day for each day skipped
+      let cursor = new Date(lastEvaluatedDate + "T12:00:00"); // midday avoids DST edge
+      let today = new Date(todayKey + "T12:00:00");
+
+      while (cursor < today){
+        // move cursor one day forward, then evaluate the day we just left behind
+        const prev = new Date(cursor);
+        // evaluate "prev day" itself at boundary
+        evaluateDay(prev);
+
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      lastEvaluatedDate = todayKey;
+      persist();
+    }
+
+    UI.renderStreak(streak);
+  }
+
+  function initAutoTick(){
+    // check every 30 seconds for date change (cheap)
+    setInterval(() => evaluateAndRender(), 30 * 1000);
+  }
+
+  return { evaluateAndRender, initAutoTick };
 })();
 
 /* =========================================================
@@ -1157,16 +1130,18 @@ const Daily = (() => {
   Theme.init();
   Menu.init();
   Tabs.init();
+
   UI.renderHeader();
+
   Tasks.renderCategorySelect();
   Tasks.render();
-  Rewards.render();
   Daily.render();
+  Rewards.render();
+
+  Streak.evaluateAndRender();
+  Streak.initAutoTick();
 })();
 </script>
 
 </body>
 </html>
-
-
-
