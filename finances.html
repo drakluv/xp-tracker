@@ -43,31 +43,20 @@
   body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
 
   /* =========================
-     TOPBAR + MENU (same style)
+     TOPBAR + MENU
   ========================= */
   .topbar{
-    position: sticky;
-    top: 0;
-    z-index: 999;
+    position: sticky; top: 0; z-index: 999;
     padding: 14px 14px;
     background: linear-gradient(90deg, var(--primary), var(--primary2));
     color:#fff;
     box-shadow: var(--shadow);
   }
   .topbarInner{
-    max-width: 1100px;
-    margin: 0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
+    max-width: 1100px; margin: 0 auto;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
   }
-  .title{
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: 0.2px;
-  }
-
+  .title{ font-weight: 900; font-size: 18px; letter-spacing: 0.2px; }
   .hud{ display:flex; align-items:center; justify-content:flex-end; gap:10px; }
   .menuWrap{ position:relative; }
   .menuBtn{
@@ -82,9 +71,7 @@
     text-align:center;
   }
   .menu{
-    position:absolute;
-    right:0;
-    top:48px;
+    position:absolute; right:0; top:48px;
     width: 240px;
     background: var(--card);
     color: var(--text);
@@ -97,19 +84,13 @@
   }
   .menu.open{ display:block; }
   .menuItem{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:10px;
-    border-radius: 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px; border-radius: 12px;
   }
   .menuItem:hover{ background: rgba(0,0,0,0.06); }
   [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
   .menuLink{
-    display:block;
-    padding:10px;
-    border-radius: 12px;
+    display:block; padding:10px; border-radius: 12px;
     color: var(--text);
     text-decoration:none;
     font-weight: 900;
@@ -137,10 +118,16 @@
     padding:12px;
     border-radius:12px;
     border:1px solid var(--line);
-    background:transparent;
-    color:var(--text);
+    background: var(--card);       /* makes text readable */
+    color: var(--text);
     outline:none;
   }
+  /* Make dropdown options readable too */
+  select option{
+    background: var(--card);
+    color: var(--text);
+  }
+
   button{
     padding:10px 12px;
     border:none;
@@ -160,13 +147,14 @@
   }
 
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .grid3{ display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px; }
   .grid4{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; }
 
   .row{ display:flex; gap:14px; flex-wrap:wrap; }
   .half{ flex:1; min-width:320px; }
 
   .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
-  table{ width:100%; border-collapse: collapse; min-width: 980px; }
+  table{ width:100%; border-collapse: collapse; min-width: 1020px; }
   th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
   th{ color:var(--muted); font-size:12px; }
 
@@ -205,7 +193,6 @@
     font-size:12px;
   }
   [data-theme="dark"] .chip{ background: rgba(255,255,255,0.06); }
-
   .chipX{
     border:none;
     background: transparent;
@@ -218,11 +205,12 @@
   }
 
   /* =========================
-     PHONE: add-entry becomes 2 rows
+     PHONE: Income/Expense forms wrap nicely
   ========================= */
   @media (max-width: 700px){
     .grid4{ grid-template-columns: 1fr 1fr; }
-    table{ min-width: 860px; }
+    .grid3{ grid-template-columns: 1fr 1fr; }
+    table{ min-width: 900px; }
   }
 </style>
 </head>
@@ -252,41 +240,48 @@
 
   <div class="wrap">
 
-    <!-- EXPENSE CATEGORIES (COMPACT) -->
+    <!-- INCOME -->
     <div class="card">
-      <h3 style="margin:0 0 10px 0;">Expense categories</h3>
+      <h3 style="margin:0 0 10px 0;">Income</h3>
 
-      <div class="catCompact">
-        <div class="catInputWrap">
-          <input id="newCat" placeholder="Add category (e.g. Food)" />
-          <button onclick="FinanceCats.add()">Add</button>
-        </div>
-        <div class="muted">Used only for outgoing entries.</div>
+      <div class="muted" style="margin-bottom:8px;">One-off income</div>
+      <div class="grid4">
+        <input id="incDesc" placeholder="Description (wage, refund...)" />
+        <input id="incAmount" type="number" placeholder="Amount" />
+        <input id="incDate" type="date" />
+        <button onclick="Finance.addIncomeOneOff()">Add</button>
       </div>
 
-      <div class="chipRow" id="catList"></div>
+      <div style="height:12px;"></div>
+
+      <div class="muted" style="margin-bottom:8px;">Recurring income</div>
+      <div class="grid4">
+        <input id="recDesc" placeholder="Description (weekly pay...)" />
+        <input id="recAmount" type="number" placeholder="Amount" />
+        <select id="recFreq">
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">2-weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <button onclick="Recurring.add()">Add</button>
+      </div>
+
+      <div id="recList" style="margin-top:10px;"></div>
     </div>
 
-    <!-- ADD ENTRY -->
+    <!-- EXPENSES -->
     <div class="card">
-      <h3 style="margin:0 0 10px 0;">Add entry</h3>
+      <h3 style="margin:0 0 10px 0;">Expenses</h3>
 
       <div class="grid4">
-        <input id="desc" placeholder="Description (rent, wage, food...)" />
-        <input id="amount" type="number" placeholder="Amount" />
-        <select id="type" onchange="Finance.onTypeChange()">
-          <option value="income">Income</option>
-          <option value="outgoing">Outgoing</option>
-        </select>
-        <input id="date" type="date" />
+        <input id="expDesc" placeholder="Description (food, rent...)" />
+        <input id="expAmount" type="number" placeholder="Amount" />
+        <select id="expCat"></select>
+        <input id="expDate" type="date" />
       </div>
 
       <div style="margin-top:10px;">
-        <select id="expenseCat" style="display:none;"></select>
-      </div>
-
-      <div style="margin-top:10px;">
-        <button onclick="Finance.add()">Add</button>
+        <button onclick="Finance.addExpense()">Add</button>
       </div>
     </div>
 
@@ -308,9 +303,24 @@
       <div class="tableWrap">
         <table id="finTable"></table>
       </div>
+      <div class="muted" style="margin-top:8px;">Recurring income is generated automatically and can be removed by deleting the recurring rule.</div>
     </div>
 
-    <!-- STARTING CASH MOVED TO BOTTOM -->
+    <!-- EXPENSE CATEGORIES (BOTTOM) -->
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Expense categories</h3>
+
+      <div class="catCompact">
+        <div class="catInputWrap">
+          <input id="newCat" placeholder="Add category (e.g. Food)" />
+          <button onclick="FinanceCats.add()">Add</button>
+        </div>
+      </div>
+
+      <div class="chipRow" id="catList"></div>
+    </div>
+
+    <!-- STARTING CASH (VERY BOTTOM) -->
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Money you have (starting cash)</h3>
       <div class="grid2">
@@ -384,13 +394,17 @@ function startOfWeekMonday(d){
   x.setHours(0,0,0,0);
   return x;
 }
+function toMiddayTs(dateStr){
+  // local midday reduces DST edge issues
+  return new Date(dateStr + "T12:00:00").getTime();
+}
 
 /* =========================================================
-  BLOCK 2 — CATEGORY MANAGER (OUTGOING ONLY)
+  BLOCK 2 — EXPENSE CATEGORY MANAGER
 ========================================================= */
 const FinanceCats = (() => {
-  let cats = LS.get("fin_cats_v1", ["Food", "Transport", "Rent", "Bills", "Other"]);
-  function persist(){ LS.set("fin_cats_v1", cats); }
+  let cats = LS.get("fin_cats_v2", ["Food", "Transport", "Rent", "Bills", "Other"]);
+  function persist(){ LS.set("fin_cats_v2", cats); }
 
   function add(){
     const name = document.getElementById("newCat").value.trim();
@@ -404,7 +418,7 @@ const FinanceCats = (() => {
   }
 
   function remove(name){
-    const entries = LS.get("fin_entries_v1", []);
+    const entries = LS.get("fin_entries_v2", []);
     const used = entries.some(e => e.type === "outgoing" && e.category === name);
     if (used) return alert("Category is used by an entry. Change/delete those entries first.");
 
@@ -419,12 +433,6 @@ const FinanceCats = (() => {
   function render(){
     const host = document.getElementById("catList");
     host.innerHTML = "";
-
-    if (cats.length === 0){
-      host.innerHTML = `<div class="muted">No categories. Add one above.</div>`;
-      return;
-    }
-
     cats.forEach(c => {
       const chip = document.createElement("div");
       chip.className = "chip";
@@ -448,27 +456,111 @@ const FinanceCats = (() => {
 })();
 
 /* =========================================================
-  BLOCK 3 — FINANCE APP
+  BLOCK 3 — RECURRING INCOME RULES
+  Stored separately; used to generate “virtual” income entries
 ========================================================= */
-function uuid(){
-  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
-}
+const Recurring = (() => {
+  let rules = LS.get("fin_recurring_v1", []); // {id, desc, amount, freq, startDate}
 
+  function persist(){ LS.set("fin_recurring_v1", rules); }
+
+  function add(){
+    const desc = document.getElementById("recDesc").value.trim();
+    const amount = Number(document.getElementById("recAmount").value);
+    const freq = document.getElementById("recFreq").value;
+
+    if (!desc) return alert("Add a description.");
+    if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
+
+    // start today by default (you can change later if you want)
+    const startDate = localDateKey(new Date());
+
+    rules.push({ id: crypto.randomUUID ? crypto.randomUUID() : ("r"+Date.now()), desc, amount, freq, startDate });
+    persist();
+
+    document.getElementById("recDesc").value = "";
+    document.getElementById("recAmount").value = "";
+
+    render();
+    Finance.renderAll();
+  }
+
+  function remove(id){
+    rules = rules.filter(r => r.id !== id);
+    persist();
+    render();
+    Finance.renderAll();
+  }
+
+  function list(){ return rules; }
+
+  function render(){
+    const host = document.getElementById("recList");
+    host.innerHTML = "";
+
+    if (rules.length === 0){
+      host.innerHTML = `<div class="muted">No recurring income rules yet.</div>`;
+      return;
+    }
+
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "tableWrap";
+    tableWrap.style.borderRadius = "12px";
+
+    const t = document.createElement("table");
+    t.style.minWidth = "900px";
+    t.innerHTML = `
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Frequency</th>
+          <th>Start</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rules.map(r => `
+          <tr>
+            <td>${escapeHtml(r.desc)}</td>
+            <td>+$${Number(r.amount).toFixed(2)}</td>
+            <td>${r.freq}</td>
+            <td>${r.startDate}</td>
+            <td style="text-align:right;">
+              <button class="xBtn" title="Delete" onclick="Recurring.remove('${r.id}')">×</button>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    `;
+    tableWrap.appendChild(t);
+    host.appendChild(tableWrap);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  return { add, remove, list, render };
+})();
+
+/* =========================================================
+  BLOCK 4 — FINANCE APP (Income + Expenses)
+========================================================= */
 const Finance = (() => {
-  let starting = LS.get("fin_startingCash_v1", 0);
-  let entries = LS.get("fin_entries_v1", []); // {id,date,type,amount,desc,ts,category?}
+  let starting = LS.get("fin_startingCash_v2", 0);
+  let entries = LS.get("fin_entries_v2", []); // {id,date,type,amount,desc,ts,category?}
 
   let weekBarChart = null;
   let balanceLineChart = null;
 
   function persist(){
-    LS.set("fin_startingCash_v1", starting);
-    LS.set("fin_entries_v1", entries);
+    LS.set("fin_startingCash_v2", starting);
+    LS.set("fin_entries_v2", entries);
   }
 
   function renderCatSelect(){
-    const sel = document.getElementById("expenseCat");
+    const sel = document.getElementById("expCat");
     sel.innerHTML = "";
     FinanceCats.list().forEach(c => {
       const opt = document.createElement("option");
@@ -476,12 +568,6 @@ const Finance = (() => {
       opt.textContent = c;
       sel.appendChild(opt);
     });
-  }
-
-  function onTypeChange(){
-    const type = document.getElementById("type").value;
-    const sel = document.getElementById("expenseCat");
-    sel.style.display = (type === "outgoing") ? "" : "none";
   }
 
   function saveStarting(){
@@ -492,28 +578,55 @@ const Finance = (() => {
     renderAll();
   }
 
-  function add(){
-    const desc = document.getElementById("desc").value.trim();
-    const amount = Number(document.getElementById("amount").value);
-    const type = document.getElementById("type").value;
-    const date = document.getElementById("date").value || localDateKey(new Date());
+  function addIncomeOneOff(){
+    const desc = document.getElementById("incDesc").value.trim();
+    const amount = Number(document.getElementById("incAmount").value);
+    const date = document.getElementById("incDate").value || localDateKey(new Date());
 
     if (!desc) return alert("Add a description.");
     if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
 
-    const ts = new Date(date + "T12:00:00").getTime();
-    const entry = { id: uuid(), date, type, amount, desc, ts };
-
-    if (type === "outgoing"){
-      entry.category = document.getElementById("expenseCat").value || "Other";
-    }
-
-    entries.push(entry);
+    entries.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : ("i"+Date.now()),
+      date,
+      type: "income",
+      amount,
+      desc,
+      ts: toMiddayTs(date)
+    });
     entries.sort((a,b)=> a.ts - b.ts);
     persist();
 
-    document.getElementById("desc").value = "";
-    document.getElementById("amount").value = "";
+    document.getElementById("incDesc").value = "";
+    document.getElementById("incAmount").value = "";
+
+    renderAll();
+  }
+
+  function addExpense(){
+    const desc = document.getElementById("expDesc").value.trim();
+    const amount = Number(document.getElementById("expAmount").value);
+    const category = document.getElementById("expCat").value || "Other";
+    const date = document.getElementById("expDate").value || localDateKey(new Date());
+
+    if (!desc) return alert("Add a description.");
+    if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
+
+    entries.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : ("e"+Date.now()),
+      date,
+      type: "outgoing",
+      amount,
+      desc,
+      category,
+      ts: toMiddayTs(date)
+    });
+    entries.sort((a,b)=> a.ts - b.ts);
+    persist();
+
+    document.getElementById("expDesc").value = "";
+    document.getElementById("expAmount").value = "";
+
     renderAll();
   }
 
@@ -523,23 +636,73 @@ const Finance = (() => {
     renderAll();
   }
 
-  function computeBalance(){
+  function generateRecurringVirtualEntries(){
+    // Generate occurrences up to today (for charts + balance).
+    const rules = Recurring.list();
+    if (!rules || rules.length === 0) return [];
+
+    const today = new Date();
+    today.setHours(12,0,0,0);
+    const out = [];
+
+    for (const r of rules){
+      const start = new Date(r.startDate + "T12:00:00");
+      if (Number.isNaN(start.getTime())) continue;
+      if (start > today) continue;
+
+      let cursor = new Date(start);
+
+      while (cursor <= today){
+        const date = localDateKey(cursor);
+        out.push({
+          id: "virt_" + r.id + "_" + date,
+          date,
+          type:"income",
+          amount: Number(r.amount) || 0,
+          desc: r.desc + " (recurring)",
+          ts: cursor.getTime(),
+          _virtual: true,
+          _ruleId: r.id
+        });
+
+        if (r.freq === "weekly"){
+          cursor.setDate(cursor.getDate() + 7);
+        } else if (r.freq === "biweekly"){
+          cursor.setDate(cursor.getDate() + 14);
+        } else if (r.freq === "monthly"){
+          cursor.setMonth(cursor.getMonth() + 1);
+        } else {
+          break;
+        }
+      }
+    }
+
+    out.sort((a,b)=> a.ts - b.ts);
+    return out;
+  }
+
+  function computeBalance(all){
     let bal = Number(starting) || 0;
-    for (const e of entries){
+    for (const e of all){
       if (e.type === "income") bal += e.amount;
       if (e.type === "outgoing") bal -= e.amount;
     }
     return bal;
   }
 
-  function renderTable(){
+  function renderTable(all){
     const t = document.getElementById("finTable");
-    const rows = [...entries].sort((a,b)=> b.ts - a.ts);
+    const rows = [...all].sort((a,b)=> b.ts - a.ts);
 
     t.innerHTML = `
       <thead>
         <tr>
-          <th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Description</th><th></th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -551,7 +714,7 @@ const Finance = (() => {
             <td>${e.type==="outgoing" ? "-" : "+"}$${Number(e.amount).toFixed(2)}</td>
             <td>${escapeHtml(e.desc)}</td>
             <td style="text-align:right;">
-              <button class="xBtn" title="Delete" onclick="Finance.remove('${e.id}')">×</button>
+              ${e._virtual ? `<span class="muted">auto</span>` : `<button class="xBtn" title="Delete" onclick="Finance.remove('${e.id}')">×</button>`}
             </td>
           </tr>
         `).join("")}
@@ -560,13 +723,13 @@ const Finance = (() => {
     `;
   }
 
-  function renderCharts(){
+  function renderCharts(all){
     const now = new Date();
     const ws = startOfWeekMonday(now);
     const we = new Date(ws); we.setDate(we.getDate()+7);
 
     let incomeWeek = 0, outgoingWeek = 0;
-    for (const e of entries){
+    for (const e of all){
       if (e.ts >= ws.getTime() && e.ts < we.getTime()){
         if (e.type === "income") incomeWeek += e.amount;
         if (e.type === "outgoing") outgoingWeek += e.amount;
@@ -586,6 +749,83 @@ const Finance = (() => {
       },
       options:{ responsive:true }
     });
+
+    // balance trend last 30 days
+    const days = [];
+    const balances = [];
+    const start = new Date();
+    start.setDate(start.getDate()-29);
+    start.setHours(0,0,0,0);
+
+    const netByDay = {};
+    for (const e of all){
+      const k = e.date;
+      netByDay[k] = netByDay[k] || 0;
+      netByDay[k] += (e.type === "income") ? e.amount : -e.amount;
+    }
+
+    // baseline = starting + all nets before start
+    let base = Number(starting) || 0;
+    for (const e of all){
+      const d = new Date(e.date + "T12:00:00");
+      if (d < start){
+        base += (e.type === "income") ? e.amount : -e.amount;
+      }
+    }
+
+    let running = base;
+    for (let i=0;i<30;i++){
+      const d = new Date(start); d.setDate(d.getDate()+i);
+      const k = localDateKey(d);
+      days.push(k.slice(5));
+      running += (netByDay[k] || 0);
+      balances.push(running);
+    }
+
+    const balCtx = document.getElementById("balanceLine");
+    if (balanceLineChart) balanceLineChart.destroy();
+    balanceLineChart = new Chart(balCtx, {
+      type:"line",
+      data:{ labels:days, datasets:[{ label:"Balance", data:balances, tension:0.25 }] },
+      options:{ responsive:true }
+    });
+  }
+
+  function renderAll(){
+    const virtual = generateRecurringVirtualEntries();
+    const all = [...entries, ...virtual].sort((a,b)=> a.ts - b.ts);
+
+    document.getElementById("startingCash").value = starting;
+    document.getElementById("balance").textContent = "$" + computeBalance(all).toFixed(2);
+
+    renderTable(all);
+    renderCharts(all);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  return {
+    saveStarting,
+    addIncomeOneOff,
+    addExpense,
+    remove,
+    renderAll,
+    renderCatSelect
+  };
+})();
+
+/* =========================================================
+  INIT
+========================================================= */
+FinanceCats.render();
+Finance.renderCatSelect();
+Recurring.render();
+Finance.renderAll();
+</script>
+</body>
+</html>
 
     const days = [];
     const balances = [];
