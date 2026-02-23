@@ -750,13 +750,6 @@ const Finance = (() => {
       options:{ responsive:true }
     });
 
-    // balance trend last 30 days
-    const days = [];
-    const balances = [];
-    const start = new Date();
-    start.setDate(start.getDate()-29);
-    start.setHours(0,0,0,0);
-
     const netByDay = {};
     for (const e of all){
       const k = e.date;
@@ -826,6 +819,13 @@ Finance.renderAll();
 </script>
 </body>
 </html>
+
+ // balance trend last 30 days
+    const days = [];
+    const balances = [];
+    const start = new Date();
+    start.setDate(start.getDate()-29);
+    start.setHours(0,0,0,0);
 
     const days = [];
     const balances = [];
