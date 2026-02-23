@@ -1,222 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Finances</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finances</title>
 
-<style>
-  :root{
-    --bg:#f3f4f6;
-    --card:#ffffff;
-    --text:#111827;
-    --muted:#6b7280;
-    --line:rgba(0,0,0,0.10);
+  <!-- LIBS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    --primary:#7c3aed;
-    --primary2:#2563eb;
+  <!-- =========================
+       STYLES
+  ========================= -->
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:rgba(0,0,0,0.10);
 
-    --accent:#22c55e;
-    --danger:#ef4444;
+      --primary:#7c3aed;
+      --primary2:#2563eb;
 
-    --shadow:0 10px 30px rgba(0,0,0,0.12);
-    --radius:14px;
+      --accent:#22c55e;
+      --danger:#ef4444;
 
-    --hudBg: rgba(255,255,255,0.14);
-    --hudBorder: rgba(255,255,255,0.22);
-  }
+      --shadow:0 10px 30px rgba(0,0,0,0.12);
+      --radius:14px;
 
-  [data-theme="dark"]{
-    --bg:#0b1220;
-    --card:#111a2e;
-    --text:#e5e7eb;
-    --muted:#9ca3af;
-    --line:rgba(255,255,255,0.12);
-    --shadow:0 10px 30px rgba(0,0,0,0.45);
+      --hudBg: rgba(255,255,255,0.14);
+      --hudBorder: rgba(255,255,255,0.22);
+    }
 
-    --hudBg: rgba(255,255,255,0.10);
-    --hudBorder: rgba(255,255,255,0.18);
-  }
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:rgba(255,255,255,0.12);
+      --shadow:0 10px 30px rgba(0,0,0,0.45);
 
-  *{ box-sizing:border-box; }
-  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+      --hudBg: rgba(255,255,255,0.10);
+      --hudBorder: rgba(255,255,255,0.18);
+    }
 
-  /* =========================
-     TOPBAR + MENU
-  ========================= */
-  .topbar{
-    position: sticky; top: 0; z-index: 999;
-    padding: 14px 14px;
-    background: linear-gradient(90deg, var(--primary), var(--primary2));
-    color:#fff;
-    box-shadow: var(--shadow);
-  }
-  .topbarInner{
-    max-width: 1100px; margin: 0 auto;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-  }
-  .title{ font-weight: 900; font-size: 18px; letter-spacing: 0.2px; }
-  .hud{ display:flex; align-items:center; justify-content:flex-end; gap:10px; }
-  .menuWrap{ position:relative; }
-  .menuBtn{
-    border:1px solid var(--hudBorder);
-    background: linear-gradient(90deg, rgba(14,165,233,0.28), rgba(34,197,94,0.22));
-    color:#fff;
-    padding:10px 12px;
-    border-radius: 999px;
-    cursor:pointer;
-    font-weight: 900;
-    min-width: 44px;
-    text-align:center;
-  }
-  .menu{
-    position:absolute; right:0; top:48px;
-    width: 240px;
-    background: var(--card);
-    color: var(--text);
-    border:1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    padding: 10px;
-    display:none;
-    z-index: 1000;
-  }
-  .menu.open{ display:block; }
-  .menuItem{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:10px; border-radius: 12px;
-  }
-  .menuItem:hover{ background: rgba(0,0,0,0.06); }
-  [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
-  .menuLink{
-    display:block; padding:10px; border-radius: 12px;
-    color: var(--text);
-    text-decoration:none;
-    font-weight: 900;
-  }
-  .menuLink:hover{ background: rgba(0,0,0,0.06); }
-  [data-theme="dark"] .menuLink:hover{ background: rgba(255,255,255,0.06); }
-  .switch{ width:22px; height:22px; accent-color: var(--accent); }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-  /* =========================
-     PAGE
-  ========================= */
-  .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:14px;
-    margin-bottom:14px;
-    box-shadow: var(--shadow);
-  }
-  .muted{ color:var(--muted); font-size:12px; }
+    /* TOPBAR + MENU */
+    .topbar{
+      position: sticky; top: 0; z-index: 999;
+      padding: 14px 14px;
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      color:#fff;
+      box-shadow: var(--shadow);
+    }
+    .topbarInner{
+      max-width: 1100px; margin: 0 auto;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .title{ font-weight: 900; font-size: 18px; letter-spacing: 0.2px; }
+    .hud{ display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+    .menuWrap{ position:relative; }
+    .menuBtn{
+      border:1px solid var(--hudBorder);
+      background: linear-gradient(90deg, rgba(14,165,233,0.28), rgba(34,197,94,0.22));
+      color:#fff;
+      padding:10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 900;
+      min-width: 44px;
+      text-align:center;
+    }
+    .menu{
+      position:absolute; right:0; top:48px;
+      width: 240px;
+      background: var(--card);
+      color: var(--text);
+      border:1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display:none;
+      z-index: 1000;
+    }
+    .menu.open{ display:block; }
+    .menuItem{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px; border-radius: 12px;
+    }
+    .menuItem:hover{ background: rgba(0,0,0,0.06); }
+    [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
+    .menuLink{
+      display:block; padding:10px; border-radius: 12px;
+      color: var(--text);
+      text-decoration:none;
+      font-weight: 900;
+    }
+    .menuLink:hover{ background: rgba(0,0,0,0.06); }
+    [data-theme="dark"] .menuLink:hover{ background: rgba(255,255,255,0.06); }
+    .switch{ width:22px; height:22px; accent-color: var(--accent); }
 
-  input, select{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid var(--line);
-    background: var(--card);       /* makes text readable */
-    color: var(--text);
-    outline:none;
-  }
-  /* Make dropdown options readable too */
-  select option{
-    background: var(--card);
-    color: var(--text);
-  }
+    /* LAYOUT */
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:14px;
+      box-shadow: var(--shadow);
+    }
+    .muted{ color:var(--muted); font-size:12px; }
 
-  button{
-    padding:10px 12px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:900;
-    color:#fff;
-    background:linear-gradient(90deg,var(--accent),#16a34a);
-  }
-  .xBtn{
-    width:34px; height:34px;
-    border-radius:999px;
-    padding:0;
-    display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(90deg,var(--danger),#dc2626);
-    font-size:18px;
-  }
+    input, select{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      outline:none;
+    }
+    select option{
+      background: var(--card);
+      color: var(--text);
+    }
 
-  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-  .grid3{ display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px; }
-  .grid4{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; }
+    button{
+      padding:10px 12px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(90deg,var(--accent),#16a34a);
+    }
+    .xBtn{
+      width:34px; height:34px;
+      border-radius:999px;
+      padding:0;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(90deg,var(--danger),#dc2626);
+      font-size:18px;
+    }
 
-  .row{ display:flex; gap:14px; flex-wrap:wrap; }
-  .half{ flex:1; min-width:320px; }
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .grid4{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; }
 
-  .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
-  table{ width:100%; border-collapse: collapse; min-width: 1020px; }
-  th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
-  th{ color:var(--muted); font-size:12px; }
+    .row{ display:flex; gap:14px; flex-wrap:wrap; }
+    .half{ flex:1; min-width:320px; }
 
-  /* =========================
-     COMPACT CATEGORY UI
-  ========================= */
-  .catCompact{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-  }
-  .catInputWrap{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    flex:1;
-    min-width: 240px;
-  }
-  .catInputWrap input{ flex:1; }
-  .chipRow{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:10px;
-  }
-  .chip{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:6px 10px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background: rgba(0,0,0,0.03);
-    font-weight:900;
-    font-size:12px;
-  }
-  [data-theme="dark"] .chip{ background: rgba(255,255,255,0.06); }
-  .chipX{
-    border:none;
-    background: transparent;
-    color: var(--danger);
-    font-weight: 900;
-    cursor:pointer;
-    padding:0;
-    line-height:1;
-    font-size:16px;
-  }
+    .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+    table{ width:100%; border-collapse: collapse; min-width: 1020px; }
+    th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+    th{ color:var(--muted); font-size:12px; }
 
-  /* =========================
-     PHONE: Income/Expense forms wrap nicely
-  ========================= */
-  @media (max-width: 700px){
-    .grid4{ grid-template-columns: 1fr 1fr; }
-    .grid3{ grid-template-columns: 1fr 1fr; }
-    table{ min-width: 900px; }
-  }
-</style>
+    /* COMPACT CATEGORY CHIPS */
+    .catInputWrap{
+      display:flex; gap:10px; align-items:center;
+      flex:1; min-width: 240px;
+    }
+    .catInputWrap input{ flex:1; }
+    .chipRow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,0.03);
+      font-weight:900;
+      font-size:12px;
+    }
+    [data-theme="dark"] .chip{ background: rgba(255,255,255,0.06); }
+    .chipX{
+      border:none; background: transparent; color: var(--danger);
+      font-weight: 900; cursor:pointer; padding:0; line-height:1; font-size:16px;
+    }
+
+    /* PHONE */
+    @media (max-width: 700px){
+      .grid4{ grid-template-columns: 1fr 1fr; }
+      table{ min-width: 900px; }
+    }
+  </style>
 </head>
 
 <body>
-  <!-- TOPBAR -->
+  <!-- =========================
+       TOPBAR
+  ========================= -->
   <div class="topbar">
     <div class="topbarInner">
       <div class="title">Finances</div>
@@ -238,6 +217,9 @@
     </div>
   </div>
 
+  <!-- =========================
+       PAGE
+  ========================= -->
   <div class="wrap">
 
     <!-- INCOME -->
@@ -303,20 +285,18 @@
       <div class="tableWrap">
         <table id="finTable"></table>
       </div>
-      <div class="muted" style="margin-top:8px;">Recurring income is generated automatically and can be removed by deleting the recurring rule.</div>
+      <div class="muted" style="margin-top:8px;">
+        Recurring income is generated automatically and can be removed by deleting the recurring rule.
+      </div>
     </div>
 
     <!-- EXPENSE CATEGORIES (BOTTOM) -->
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Expense categories</h3>
-
-      <div class="catCompact">
-        <div class="catInputWrap">
-          <input id="newCat" placeholder="Add category (e.g. Food)" />
-          <button onclick="FinanceCats.add()">Add</button>
-        </div>
+      <div class="catInputWrap">
+        <input id="newCat" placeholder="Add category (e.g. Food)" />
+        <button onclick="FinanceCats.add()">Add</button>
       </div>
-
       <div class="chipRow" id="catList"></div>
     </div>
 
@@ -333,552 +313,473 @@
 
   </div>
 
-<script>
-/* =========================================================
-  BLOCK 0 — THEME + MENU
-========================================================= */
-const LS = {
-  get(key, fallback){
-    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-    catch { return fallback; }
-  },
-  set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
-};
+  <!-- =========================
+       SCRIPT (YOUR APP)
+  ========================= -->
+  <script>
+    /* =========================================================
+      SECTION A — STORAGE HELPERS
+    ========================================================= */
+    const LS = {
+      get(key, fallback){
+        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+        catch { return fallback; }
+      },
+      set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+    };
 
-(function ThemeAndMenuInit(){
-  const darkToggle = document.getElementById("darkToggle");
-  const savedTheme = LS.get("theme", "light");
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  darkToggle.checked = savedTheme === "dark";
+    /* =========================================================
+      SECTION B — MENU + THEME
+    ========================================================= */
+    (function ThemeAndMenuInit(){
+      const darkToggle = document.getElementById("darkToggle");
+      const savedTheme = LS.get("theme", "light");
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      darkToggle.checked = savedTheme === "dark";
 
-  darkToggle.addEventListener("change", () => {
-    const t = darkToggle.checked ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", t);
-    LS.set("theme", t);
-  });
+      darkToggle.addEventListener("change", () => {
+        const t = darkToggle.checked ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", t);
+        LS.set("theme", t);
+      });
 
-  const menuBtn = document.getElementById("menuBtn");
-  const menu = document.getElementById("menu");
-
-  function setOpen(open){
-    if (open){
-      menu.classList.add("open");
-      menuBtn.setAttribute("aria-expanded","true");
-    } else {
-      menu.classList.remove("open");
-      menuBtn.setAttribute("aria-expanded","false");
-    }
-  }
-
-  menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setOpen(!menu.classList.contains("open"));
-  });
-  document.addEventListener("click", () => setOpen(false));
-})();
-
-/* =========================================================
-  BLOCK 1 — TIME HELPERS (PHONE LOCAL DATE)
-========================================================= */
-function localDateKey(d=new Date()){
-  const yr = d.getFullYear();
-  const mo = String(d.getMonth()+1).padStart(2,'0');
-  const da = String(d.getDate()).padStart(2,'0');
-  return `${yr}-${mo}-${da}`;
-}
-function startOfWeekMonday(d){
-  const x = new Date(d);
-  const day = x.getDay();
-  const diff = (day === 0 ? -6 : 1 - day);
-  x.setDate(x.getDate() + diff);
-  x.setHours(0,0,0,0);
-  return x;
-}
-function toMiddayTs(dateStr){
-  // local midday reduces DST edge issues
-  return new Date(dateStr + "T12:00:00").getTime();
-}
-
-/* =========================================================
-  BLOCK 2 — EXPENSE CATEGORY MANAGER
-========================================================= */
-const FinanceCats = (() => {
-  let cats = LS.get("fin_cats_v2", ["Food", "Transport", "Rent", "Bills", "Other"]);
-  function persist(){ LS.set("fin_cats_v2", cats); }
-
-  function add(){
-    const name = document.getElementById("newCat").value.trim();
-    if (!name) return;
-    if (cats.some(c => c.toLowerCase() === name.toLowerCase())) return alert("Category exists.");
-    cats.push(name);
-    persist();
-    document.getElementById("newCat").value = "";
-    render();
-    Finance.renderCatSelect();
-  }
-
-  function remove(name){
-    const entries = LS.get("fin_entries_v2", []);
-    const used = entries.some(e => e.type === "outgoing" && e.category === name);
-    if (used) return alert("Category is used by an entry. Change/delete those entries first.");
-
-    cats = cats.filter(c => c !== name);
-    persist();
-    render();
-    Finance.renderCatSelect();
-  }
-
-  function list(){ return cats; }
-
-  function render(){
-    const host = document.getElementById("catList");
-    host.innerHTML = "";
-    cats.forEach(c => {
-      const chip = document.createElement("div");
-      chip.className = "chip";
-
-      const label = document.createElement("span");
-      label.textContent = c;
-
-      const x = document.createElement("button");
-      x.className = "chipX";
-      x.textContent = "×";
-      x.title = "Delete category";
-      x.addEventListener("click", () => remove(c));
-
-      chip.appendChild(label);
-      chip.appendChild(x);
-      host.appendChild(chip);
-    });
-  }
-
-  return { add, remove, list, render };
-})();
-
-/* =========================================================
-  BLOCK 3 — RECURRING INCOME RULES
-  Stored separately; used to generate “virtual” income entries
-========================================================= */
-const Recurring = (() => {
-  let rules = LS.get("fin_recurring_v1", []); // {id, desc, amount, freq, startDate}
-
-  function persist(){ LS.set("fin_recurring_v1", rules); }
-
-  function add(){
-    const desc = document.getElementById("recDesc").value.trim();
-    const amount = Number(document.getElementById("recAmount").value);
-    const freq = document.getElementById("recFreq").value;
-
-    if (!desc) return alert("Add a description.");
-    if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
-
-    // start today by default (you can change later if you want)
-    const startDate = localDateKey(new Date());
-
-    rules.push({ id: crypto.randomUUID ? crypto.randomUUID() : ("r"+Date.now()), desc, amount, freq, startDate });
-    persist();
-
-    document.getElementById("recDesc").value = "";
-    document.getElementById("recAmount").value = "";
-
-    render();
-    Finance.renderAll();
-  }
-
-  function remove(id){
-    rules = rules.filter(r => r.id !== id);
-    persist();
-    render();
-    Finance.renderAll();
-  }
-
-  function list(){ return rules; }
-
-  function render(){
-    const host = document.getElementById("recList");
-    host.innerHTML = "";
-
-    if (rules.length === 0){
-      host.innerHTML = `<div class="muted">No recurring income rules yet.</div>`;
-      return;
-    }
-
-    const tableWrap = document.createElement("div");
-    tableWrap.className = "tableWrap";
-    tableWrap.style.borderRadius = "12px";
-
-    const t = document.createElement("table");
-    t.style.minWidth = "900px";
-    t.innerHTML = `
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th>Amount</th>
-          <th>Frequency</th>
-          <th>Start</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rules.map(r => `
-          <tr>
-            <td>${escapeHtml(r.desc)}</td>
-            <td>+$${Number(r.amount).toFixed(2)}</td>
-            <td>${r.freq}</td>
-            <td>${r.startDate}</td>
-            <td style="text-align:right;">
-              <button class="xBtn" title="Delete" onclick="Recurring.remove('${r.id}')">×</button>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    `;
-    tableWrap.appendChild(t);
-    host.appendChild(tableWrap);
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  return { add, remove, list, render };
-})();
-
-/* =========================================================
-  BLOCK 4 — FINANCE APP (Income + Expenses)
-========================================================= */
-const Finance = (() => {
-  let starting = LS.get("fin_startingCash_v2", 0);
-  let entries = LS.get("fin_entries_v2", []); // {id,date,type,amount,desc,ts,category?}
-
-  let weekBarChart = null;
-  let balanceLineChart = null;
-
-  function persist(){
-    LS.set("fin_startingCash_v2", starting);
-    LS.set("fin_entries_v2", entries);
-  }
-
-  function renderCatSelect(){
-    const sel = document.getElementById("expCat");
-    sel.innerHTML = "";
-    FinanceCats.list().forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c;
-      opt.textContent = c;
-      sel.appendChild(opt);
-    });
-  }
-
-  function saveStarting(){
-    const v = Number(document.getElementById("startingCash").value);
-    if (Number.isNaN(v)) return alert("Enter a number.");
-    starting = v;
-    persist();
-    renderAll();
-  }
-
-  function addIncomeOneOff(){
-    const desc = document.getElementById("incDesc").value.trim();
-    const amount = Number(document.getElementById("incAmount").value);
-    const date = document.getElementById("incDate").value || localDateKey(new Date());
-
-    if (!desc) return alert("Add a description.");
-    if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
-
-    entries.push({
-      id: crypto.randomUUID ? crypto.randomUUID() : ("i"+Date.now()),
-      date,
-      type: "income",
-      amount,
-      desc,
-      ts: toMiddayTs(date)
-    });
-    entries.sort((a,b)=> a.ts - b.ts);
-    persist();
-
-    document.getElementById("incDesc").value = "";
-    document.getElementById("incAmount").value = "";
-
-    renderAll();
-  }
-
-  function addExpense(){
-    const desc = document.getElementById("expDesc").value.trim();
-    const amount = Number(document.getElementById("expAmount").value);
-    const category = document.getElementById("expCat").value || "Other";
-    const date = document.getElementById("expDate").value || localDateKey(new Date());
-
-    if (!desc) return alert("Add a description.");
-    if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
-
-    entries.push({
-      id: crypto.randomUUID ? crypto.randomUUID() : ("e"+Date.now()),
-      date,
-      type: "outgoing",
-      amount,
-      desc,
-      category,
-      ts: toMiddayTs(date)
-    });
-    entries.sort((a,b)=> a.ts - b.ts);
-    persist();
-
-    document.getElementById("expDesc").value = "";
-    document.getElementById("expAmount").value = "";
-
-    renderAll();
-  }
-
-  function remove(id){
-    entries = entries.filter(e => e.id !== id);
-    persist();
-    renderAll();
-  }
-
-  function generateRecurringVirtualEntries(){
-    // Generate occurrences up to today (for charts + balance).
-    const rules = Recurring.list();
-    if (!rules || rules.length === 0) return [];
-
-    const today = new Date();
-    today.setHours(12,0,0,0);
-    const out = [];
-
-    for (const r of rules){
-      const start = new Date(r.startDate + "T12:00:00");
-      if (Number.isNaN(start.getTime())) continue;
-      if (start > today) continue;
-
-      let cursor = new Date(start);
-
-      while (cursor <= today){
-        const date = localDateKey(cursor);
-        out.push({
-          id: "virt_" + r.id + "_" + date,
-          date,
-          type:"income",
-          amount: Number(r.amount) || 0,
-          desc: r.desc + " (recurring)",
-          ts: cursor.getTime(),
-          _virtual: true,
-          _ruleId: r.id
-        });
-
-        if (r.freq === "weekly"){
-          cursor.setDate(cursor.getDate() + 7);
-        } else if (r.freq === "biweekly"){
-          cursor.setDate(cursor.getDate() + 14);
-        } else if (r.freq === "monthly"){
-          cursor.setMonth(cursor.getMonth() + 1);
+      const menuBtn = document.getElementById("menuBtn");
+      const menu = document.getElementById("menu");
+      function setOpen(open){
+        if (open){
+          menu.classList.add("open");
+          menuBtn.setAttribute("aria-expanded","true");
         } else {
-          break;
+          menu.classList.remove("open");
+          menuBtn.setAttribute("aria-expanded","false");
         }
       }
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setOpen(!menu.classList.contains("open"));
+      });
+      document.addEventListener("click", () => setOpen(false));
+    })();
+
+    /* =========================================================
+      SECTION C — TIME HELPERS
+    ========================================================= */
+    function localDateKey(d=new Date()){
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth()+1).padStart(2,'0');
+      const da = String(d.getDate()).padStart(2,'0');
+      return `${yr}-${mo}-${da}`;
+    }
+    function startOfWeekMonday(d){
+      const x = new Date(d);
+      const day = x.getDay();
+      const diff = (day === 0 ? -6 : 1 - day);
+      x.setDate(x.getDate() + diff);
+      x.setHours(0,0,0,0);
+      return x;
+    }
+    function toMiddayTs(dateStr){
+      return new Date(dateStr + "T12:00:00").getTime();
     }
 
-    out.sort((a,b)=> a.ts - b.ts);
-    return out;
-  }
-
-  function computeBalance(all){
-    let bal = Number(starting) || 0;
-    for (const e of all){
-      if (e.type === "income") bal += e.amount;
-      if (e.type === "outgoing") bal -= e.amount;
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m]));
     }
-    return bal;
-  }
 
-  function renderTable(all){
-    const t = document.getElementById("finTable");
-    const rows = [...all].sort((a,b)=> b.ts - a.ts);
+    /* =========================================================
+      SECTION D — EXPENSE CATEGORIES
+    ========================================================= */
+    const FinanceCats = (() => {
+      let cats = LS.get("fin_cats_v2", ["Food", "Transport", "Rent", "Bills", "Other"]);
+      function persist(){ LS.set("fin_cats_v2", cats); }
 
-    t.innerHTML = `
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Category</th>
-          <th>Amount</th>
-          <th>Description</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(e => `
-          <tr>
-            <td>${e.date}</td>
-            <td>${e.type}</td>
-            <td>${e.type === "outgoing" ? (e.category || "Other") : "-"}</td>
-            <td>${e.type==="outgoing" ? "-" : "+"}$${Number(e.amount).toFixed(2)}</td>
-            <td>${escapeHtml(e.desc)}</td>
-            <td style="text-align:right;">
-              ${e._virtual ? `<span class="muted">auto</span>` : `<button class="xBtn" title="Delete" onclick="Finance.remove('${e.id}')">×</button>`}
-            </td>
-          </tr>
-        `).join("")}
-        ${rows.length===0 ? `<tr><td colspan="6" class="muted">No entries yet.</td></tr>` : ""}
-      </tbody>
-    `;
-  }
-
-  function renderCharts(all){
-    const now = new Date();
-    const ws = startOfWeekMonday(now);
-    const we = new Date(ws); we.setDate(we.getDate()+7);
-
-    let incomeWeek = 0, outgoingWeek = 0;
-    for (const e of all){
-      if (e.ts >= ws.getTime() && e.ts < we.getTime()){
-        if (e.type === "income") incomeWeek += e.amount;
-        if (e.type === "outgoing") outgoingWeek += e.amount;
+      function add(){
+        const name = document.getElementById("newCat").value.trim();
+        if (!name) return;
+        if (cats.some(c => c.toLowerCase() === name.toLowerCase())) return alert("Category exists.");
+        cats.push(name);
+        persist();
+        document.getElementById("newCat").value = "";
+        render();
+        Finance.renderCatSelect();
       }
-    }
 
-    const weekCtx = document.getElementById("weekBar");
-    if (weekBarChart) weekBarChart.destroy();
-    weekBarChart = new Chart(weekCtx, {
-      type:"bar",
-      data:{
-        labels:["This week"],
-        datasets:[
-          { label:"Income", data:[incomeWeek] },
-          { label:"Outgoing", data:[outgoingWeek] }
-        ]
-      },
-      options:{ responsive:true }
-    });
-
-    const netByDay = {};
-    for (const e of all){
-      const k = e.date;
-      netByDay[k] = netByDay[k] || 0;
-      netByDay[k] += (e.type === "income") ? e.amount : -e.amount;
-    }
-
-    // baseline = starting + all nets before start
-    let base = Number(starting) || 0;
-    for (const e of all){
-      const d = new Date(e.date + "T12:00:00");
-      if (d < start){
-        base += (e.type === "income") ? e.amount : -e.amount;
+      function remove(name){
+        const entries = LS.get("fin_entries_v2", []);
+        const used = entries.some(e => e.type === "outgoing" && e.category === name);
+        if (used) return alert("Category is used by an entry. Change/delete those entries first.");
+        cats = cats.filter(c => c !== name);
+        persist();
+        render();
+        Finance.renderCatSelect();
       }
-    }
 
-    let running = base;
-    for (let i=0;i<30;i++){
-      const d = new Date(start); d.setDate(d.getDate()+i);
-      const k = localDateKey(d);
-      days.push(k.slice(5));
-      running += (netByDay[k] || 0);
-      balances.push(running);
-    }
+      function list(){ return cats; }
 
-    const balCtx = document.getElementById("balanceLine");
-    if (balanceLineChart) balanceLineChart.destroy();
-    balanceLineChart = new Chart(balCtx, {
-      type:"line",
-      data:{ labels:days, datasets:[{ label:"Balance", data:balances, tension:0.25 }] },
-      options:{ responsive:true }
-    });
-  }
+      function render(){
+        const host = document.getElementById("catList");
+        host.innerHTML = "";
+        cats.forEach(c => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
 
-  function renderAll(){
-    const virtual = generateRecurringVirtualEntries();
-    const all = [...entries, ...virtual].sort((a,b)=> a.ts - b.ts);
+          const label = document.createElement("span");
+          label.textContent = c;
 
-    document.getElementById("startingCash").value = starting;
-    document.getElementById("balance").textContent = "$" + computeBalance(all).toFixed(2);
+          const x = document.createElement("button");
+          x.className = "chipX";
+          x.textContent = "×";
+          x.title = "Delete category";
+          x.addEventListener("click", () => remove(c));
 
-    renderTable(all);
-    renderCharts(all);
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  return {
-    saveStarting,
-    addIncomeOneOff,
-    addExpense,
-    remove,
-    renderAll,
-    renderCatSelect
-  };
-})();
-
-/* =========================================================
-  INIT
-========================================================= */
-FinanceCats.render();
-Finance.renderCatSelect();
-Recurring.render();
-Finance.renderAll();
-</script>
-</body>
-</html>
-
-    const days = [];
-    const balances = [];
-    const start = new Date(); start.setDate(start.getDate()-29);
-    start.setHours(0,0,0,0);
-
-    const netByDay = {};
-    for (const e of entries){
-      const k = e.date;
-      netByDay[k] = netByDay[k] || 0;
-      netByDay[k] += (e.type === "income") ? e.amount : -e.amount;
-    }
-
-    let base = Number(starting) || 0;
-    for (const e of entries){
-      const d = new Date(e.date + "T12:00:00");
-      if (d < start){
-        base += (e.type === "income") ? e.amount : -e.amount;
+          chip.appendChild(label);
+          chip.appendChild(x);
+          host.appendChild(chip);
+        });
       }
-    }
 
-    let running = base;
-    for (let i=0;i<30;i++){
-      const d = new Date(start); d.setDate(d.getDate()+i);
-      const k = localDateKey(d);
-      days.push(k.slice(5));
-      running += (netByDay[k] || 0);
-      balances.push(running);
-    }
+      return { add, remove, list, render };
+    })();
 
-    const balCtx = document.getElementById("balanceLine");
-    if (balanceLineChart) balanceLineChart.destroy();
-    balanceLineChart = new Chart(balCtx, {
-      type:"line",
-      data:{ labels:days, datasets:[{ label:"Balance", data:balances, tension:0.25 }] },
-      options:{ responsive:true }
-    });
-  }
+    /* =========================================================
+      SECTION E — RECURRING INCOME RULES
+    ========================================================= */
+    const Recurring = (() => {
+      let rules = LS.get("fin_recurring_v1", []); // {id, desc, amount, freq, startDate}
+      function persist(){ LS.set("fin_recurring_v1", rules); }
 
-  function renderAll(){
-    document.getElementById("startingCash").value = starting;
-    document.getElementById("balance").textContent = "$" + computeBalance().toFixed(2);
-    renderTable();
-    renderCharts();
-  }
+      function add(){
+        const desc = document.getElementById("recDesc").value.trim();
+        const amount = Number(document.getElementById("recAmount").value);
+        const freq = document.getElementById("recFreq").value;
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
+        if (!desc) return alert("Add a description.");
+        if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
 
-  return { saveStarting, add, remove, renderAll, onTypeChange, renderCatSelect };
-})();
+        const startDate = localDateKey(new Date());
+        rules.push({
+          id: (crypto.randomUUID ? crypto.randomUUID() : ("r"+Date.now())),
+          desc, amount, freq, startDate
+        });
+        persist();
 
-/* =========================================================
-  INIT
-========================================================= */
-FinanceCats.render();
-Finance.renderCatSelect();
-Finance.onTypeChange();
-Finance.renderAll();
-</script>
+        document.getElementById("recDesc").value = "";
+        document.getElementById("recAmount").value = "";
+
+        render();
+        Finance.renderAll();
+      }
+
+      function remove(id){
+        rules = rules.filter(r => r.id !== id);
+        persist();
+        render();
+        Finance.renderAll();
+      }
+
+      function list(){ return rules; }
+
+      function render(){
+        const host = document.getElementById("recList");
+        host.innerHTML = "";
+        if (rules.length === 0){
+          host.innerHTML = `<div class="muted">No recurring income rules yet.</div>`;
+          return;
+        }
+
+        const tableWrap = document.createElement("div");
+        tableWrap.className = "tableWrap";
+
+        const t = document.createElement("table");
+        t.style.minWidth = "900px";
+        t.innerHTML = `
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Frequency</th>
+              <th>Start</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rules.map(r => `
+              <tr>
+                <td>${escapeHtml(r.desc)}</td>
+                <td>+$${Number(r.amount).toFixed(2)}</td>
+                <td>${r.freq}</td>
+                <td>${r.startDate}</td>
+                <td style="text-align:right;">
+                  <button class="xBtn" title="Delete" onclick="Recurring.remove('${r.id}')">×</button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        `;
+        tableWrap.appendChild(t);
+        host.appendChild(tableWrap);
+      }
+
+      return { add, remove, list, render };
+    })();
+
+    /* =========================================================
+      SECTION F — FINANCE APP (INCOME + EXPENSES + CHARTS)
+    ========================================================= */
+    const Finance = (() => {
+      let starting = LS.get("fin_startingCash_v2", 0);
+      let entries = LS.get("fin_entries_v2", []);
+
+      let weekBarChart = null;
+      let balanceLineChart = null;
+
+      function persist(){
+        LS.set("fin_startingCash_v2", starting);
+        LS.set("fin_entries_v2", entries);
+      }
+
+      function renderCatSelect(){
+        const sel = document.getElementById("expCat");
+        sel.innerHTML = "";
+        FinanceCats.list().forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          sel.appendChild(opt);
+        });
+      }
+
+      function saveStarting(){
+        const v = Number(document.getElementById("startingCash").value);
+        if (Number.isNaN(v)) return alert("Enter a number.");
+        starting = v;
+        persist();
+        renderAll();
+      }
+
+      function addIncomeOneOff(){
+        const desc = document.getElementById("incDesc").value.trim();
+        const amount = Number(document.getElementById("incAmount").value);
+        const date = document.getElementById("incDate").value || localDateKey(new Date());
+
+        if (!desc) return alert("Add a description.");
+        if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
+
+        entries.push({
+          id: (crypto.randomUUID ? crypto.randomUUID() : ("i"+Date.now())),
+          date, type:"income", amount, desc, ts: toMiddayTs(date)
+        });
+        entries.sort((a,b)=> a.ts - b.ts);
+        persist();
+
+        document.getElementById("incDesc").value = "";
+        document.getElementById("incAmount").value = "";
+        renderAll();
+      }
+
+      function addExpense(){
+        const desc = document.getElementById("expDesc").value.trim();
+        const amount = Number(document.getElementById("expAmount").value);
+        const category = document.getElementById("expCat").value || "Other";
+        const date = document.getElementById("expDate").value || localDateKey(new Date());
+
+        if (!desc) return alert("Add a description.");
+        if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
+
+        entries.push({
+          id: (crypto.randomUUID ? crypto.randomUUID() : ("e"+Date.now())),
+          date, type:"outgoing", amount, desc, category, ts: toMiddayTs(date)
+        });
+        entries.sort((a,b)=> a.ts - b.ts);
+        persist();
+
+        document.getElementById("expDesc").value = "";
+        document.getElementById("expAmount").value = "";
+        renderAll();
+      }
+
+      function remove(id){
+        entries = entries.filter(e => e.id !== id);
+        persist();
+        renderAll();
+      }
+
+      function generateRecurringVirtualEntries(){
+        const rules = Recurring.list();
+        if (!rules || rules.length === 0) return [];
+
+        const today = new Date();
+        today.setHours(12,0,0,0);
+        const out = [];
+
+        for (const r of rules){
+          const start = new Date(r.startDate + "T12:00:00");
+          if (Number.isNaN(start.getTime())) continue;
+          if (start > today) continue;
+
+          let cursor = new Date(start);
+          while (cursor <= today){
+            const date = localDateKey(cursor);
+            out.push({
+              id: "virt_" + r.id + "_" + date,
+              date,
+              type:"income",
+              amount: Number(r.amount) || 0,
+              desc: r.desc + " (recurring)",
+              ts: cursor.getTime(),
+              _virtual: true,
+              _ruleId: r.id
+            });
+
+            if (r.freq === "weekly") cursor.setDate(cursor.getDate() + 7);
+            else if (r.freq === "biweekly") cursor.setDate(cursor.getDate() + 14);
+            else if (r.freq === "monthly") cursor.setMonth(cursor.getMonth() + 1);
+            else break;
+          }
+        }
+
+        out.sort((a,b)=> a.ts - b.ts);
+        return out;
+      }
+
+      function computeBalance(all){
+        let bal = Number(starting) || 0;
+        for (const e of all){
+          if (e.type === "income") bal += e.amount;
+          if (e.type === "outgoing") bal -= e.amount;
+        }
+        return bal;
+      }
+
+      function renderTable(all){
+        const t = document.getElementById("finTable");
+        const rows = [...all].sort((a,b)=> b.ts - a.ts);
+
+        t.innerHTML = `
+          <thead>
+            <tr>
+              <th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Description</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(e => `
+              <tr>
+                <td>${e.date}</td>
+                <td>${e.type}</td>
+                <td>${e.type === "outgoing" ? (e.category || "Other") : "-"}</td>
+                <td>${e.type==="outgoing" ? "-" : "+"}$${Number(e.amount).toFixed(2)}</td>
+                <td>${escapeHtml(e.desc)}</td>
+                <td style="text-align:right;">
+                  ${e._virtual ? `<span class="muted">auto</span>` : `<button class="xBtn" title="Delete" onclick="Finance.remove('${e.id}')">×</button>`}
+                </td>
+              </tr>
+            `).join("")}
+            ${rows.length===0 ? `<tr><td colspan="6" class="muted">No entries yet.</td></tr>` : ""}
+          </tbody>
+        `;
+      }
+
+      function renderCharts(all){
+        const now = new Date();
+        const ws = startOfWeekMonday(now);
+        const we = new Date(ws); we.setDate(we.getDate()+7);
+
+        // (1) weekly bar
+        let incomeWeek = 0, outgoingWeek = 0;
+        for (const e of all){
+          if (e.ts >= ws.getTime() && e.ts < we.getTime()){
+            if (e.type === "income") incomeWeek += e.amount;
+            if (e.type === "outgoing") outgoingWeek += e.amount;
+          }
+        }
+
+        const weekCtx = document.getElementById("weekBar");
+        if (weekBarChart) weekBarChart.destroy();
+        weekBarChart = new Chart(weekCtx, {
+          type:"bar",
+          data:{
+            labels:["This week"],
+            datasets:[
+              { label:"Income", data:[incomeWeek] },
+              { label:"Outgoing", data:[outgoingWeek] }
+            ]
+          },
+          options:{ responsive:true }
+        });
+
+        // (2) balance trend last 30 days
+        const days = [];
+        const balances = [];
+        const start = new Date();
+        start.setDate(start.getDate()-29);
+        start.setHours(0,0,0,0);
+
+        const netByDay = {};
+        for (const e of all){
+          const k = e.date;
+          netByDay[k] = netByDay[k] || 0;
+          netByDay[k] += (e.type === "income") ? e.amount : -e.amount;
+        }
+
+        // baseline = starting + all nets before start
+        let base = Number(starting) || 0;
+        for (const e of all){
+          const d = new Date(e.date + "T12:00:00");
+          if (d < start){
+            base += (e.type === "income") ? e.amount : -e.amount;
+          }
+        }
+
+        let running = base;
+        for (let i=0;i<30;i++){
+          const d = new Date(start);
+          d.setDate(d.getDate()+i);
+          const k = localDateKey(d);
+          days.push(k.slice(5));
+          running += (netByDay[k] || 0);
+          balances.push(running);
+        }
+
+        const balCtx = document.getElementById("balanceLine");
+        if (balanceLineChart) balanceLineChart.destroy();
+        balanceLineChart = new Chart(balCtx, {
+          type:"line",
+          data:{ labels:days, datasets:[{ label:"Balance", data:balances, tension:0.25 }] },
+          options:{ responsive:true }
+        });
+      }
+
+      function renderAll(){
+        const virtual = generateRecurringVirtualEntries();
+        const all = [...entries, ...virtual].sort((a,b)=> a.ts - b.ts);
+
+        document.getElementById("startingCash").value = starting;
+        document.getElementById("balance").textContent = "$" + computeBalance(all).toFixed(2);
+
+        renderCatSelect();
+        renderTable(all);
+        renderCharts(all);
+      }
+
+      return {
+        saveStarting,
+        addIncomeOneOff,
+        addExpense,
+        remove,
+        renderAll,
+        renderCatSelect
+      };
+    })();
+
+    /* =========================================================
+      SECTION G — INIT
+    ========================================================= */
+    FinanceCats.render();
+    Finance.renderCatSelect();
+    Recurring.render();
+    Finance.renderAll();
+  </script>
 </body>
 </html>
