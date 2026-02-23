@@ -4,133 +4,194 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Jobs</title>
+
 <style>
-  :root{ --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --line:rgba(0,0,0,0.10); --accent:#22c55e; --danger:#ef4444; }
-  [data-theme="dark"]{ --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --muted:#9ca3af; --line:rgba(255,255,255,0.12); }
+  :root{
+    --bg:#f3f4f6; --card:#ffffff; --text:#111827; --muted:#6b7280; --line:rgba(0,0,0,0.10);
+    --primary:#7c3aed; --primary2:#2563eb;
+    --accent:#22c55e; --danger:#ef4444;
+    --shadow:0 10px 30px rgba(0,0,0,0.12);
+    --hudBorder: rgba(255,255,255,0.22);
+  }
+  [data-theme="dark"]{
+    --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --muted:#9ca3af; --line:rgba(255,255,255,0.12);
+    --shadow:0 10px 30px rgba(0,0,0,0.45);
+    --hudBorder: rgba(255,255,255,0.18);
+  }
+  *{ box-sizing:border-box; }
   body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
-  .top{ position:sticky; top:0; z-index:9; padding:14px; background:linear-gradient(90deg,#7c3aed,#2563eb); color:#fff; }
+
+  /* TOPBAR */
+  .topbar{ position:sticky; top:0; z-index:999; padding:14px; background:linear-gradient(90deg,var(--primary),var(--primary2)); color:#fff; box-shadow:var(--shadow); }
+  .topbarInner{ max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .title{ font-weight:900; font-size:18px; }
+  .menuWrap{ position:relative; }
+  .menuBtn{
+    border:1px solid var(--hudBorder);
+    background: linear-gradient(90deg, rgba(14,165,233,0.28), rgba(34,197,94,0.22));
+    color:#fff; padding:10px 12px; border-radius:999px; cursor:pointer; font-weight:900; min-width:44px; text-align:center;
+  }
+  .menu{
+    position:absolute; right:0; top:48px; width:240px;
+    background:var(--card); color:var(--text);
+    border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:10px; display:none; z-index:1000;
+  }
+  .menu.open{ display:block; }
+  .menuItem{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; border-radius:12px; }
+  .menuItem:hover{ background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
+  .menuLink{ display:block; padding:10px; border-radius:12px; color:var(--text); text-decoration:none; font-weight:900; }
+  .menuLink:hover{ background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .menuLink:hover{ background: rgba(255,255,255,0.06); }
+  .switch{ width:22px; height:22px; accent-color: var(--accent); }
+
+  /* PAGE */
   .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; }
-  a{ color:#fff; font-weight:900; text-decoration:none; }
-  input, select{ width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--text); outline:none; }
-  button{ padding:10px 12px; border:none; border-radius:12px; cursor:pointer; font-weight:900; color:#fff; background:linear-gradient(90deg,var(--accent),#16a34a); }
-  .xBtn{ width:34px; height:34px; border-radius:999px; padding:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(90deg,var(--danger),#dc2626); font-size:18px; }
-  .grid{ display:grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr; gap:10px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow:var(--shadow); }
+  .muted{ color:var(--muted); font-size:12px; }
+
+  input, select{
+    width:100%; padding:12px; border-radius:12px; border:1px solid var(--line);
+    background:var(--card); color:var(--text); outline:none;
+  }
+  select option{ background:var(--card); color:var(--text); }
+
+  button{
+    padding:10px 12px; border:none; border-radius:12px; cursor:pointer; font-weight:900; color:#fff;
+    background:linear-gradient(90deg,var(--accent),#16a34a);
+  }
+  .xBtn{
+    width:34px; height:34px; border-radius:999px; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(90deg,var(--danger),#dc2626); font-size:18px;
+  }
+
+  .grid5{ display:grid; grid-template-columns: 2fr 1.4fr 1fr 1fr 0.9fr; gap:10px; }
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
   .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
-  table{ width:100%; border-collapse: collapse; min-width: 900px; }
+  table{ width:100%; border-collapse:collapse; min-width: 980px; }
   th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
   th{ color:var(--muted); font-size:12px; }
-  .muted{ color:var(--muted); font-size:12px; }
+
+  @media (max-width: 720px){
+    /* This is the key: multi-row layout on phone */
+    .grid5{ grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
+
 <body>
-  <div class="top">
-    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;">
-      <div style="font-weight:900;">Jobs</div>
-      <a href="./index.html">← Back</a>
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="title">Jobs</div>
+      <div class="menuWrap">
+        <button class="menuBtn" id="menuBtn">☰</button>
+        <div class="menu" id="menu">
+          <div class="menuItem">
+            <span style="font-weight:900;">Darkmode</span>
+            <input class="switch" type="checkbox" id="darkToggle">
+          </div>
+          <a class="menuLink" href="./index.html">Tasks</a>
+          <a class="menuLink" href="./finances.html">Finances</a>
+          <a class="menuLink" href="./jobs.html">Jobs</a>
+          <a class="menuLink" href="./statistics.html">Statistics</a>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="wrap">
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Add application</h3>
-      <div class="grid">
+
+      <div class="grid5">
         <input id="company" placeholder="Company" />
-        <input id="role" placeholder="Role / position" />
+        <input id="role" placeholder="Role" />
         <input id="date" type="date" />
         <input id="time" type="time" />
         <select id="priority">
-          <option value="1">Priority 1 (low)</option>
-          <option value="2">Priority 2</option>
-          <option value="3" selected>Priority 3</option>
-          <option value="4">Priority 4</option>
-          <option value="5">Priority 5 (high)</option>
+          <option value="1">P1</option>
+          <option value="2">P2</option>
+          <option value="3" selected>P3</option>
+          <option value="4">P4</option>
+          <option value="5">P5</option>
         </select>
       </div>
-      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+
+      <div style="margin-top:10px;">
         <button onclick="Jobs.add()">Add</button>
-        <div class="muted">Tip: date/time uses your phone time.</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="grid2" style="align-items:end;">
-        <div>
-          <h3 style="margin:0 0 10px 0;">Applications</h3>
-          <div class="muted">Sort by time or priority.</div>
-        </div>
-        <div>
-          <label class="muted">Sort</label>
-          <select id="sort" onchange="Jobs.render()">
-            <option value="time_desc" selected>Time (newest first)</option>
-            <option value="time_asc">Time (oldest first)</option>
-            <option value="prio_desc">Priority (high → low)</option>
-            <option value="prio_asc">Priority (low → high)</option>
-          </select>
-        </div>
+      <div class="grid2">
+        <select id="sortBy" onchange="Jobs.render()">
+          <option value="dateDesc">Sort: newest date</option>
+          <option value="dateAsc">Sort: oldest date</option>
+          <option value="prioAsc">Sort: priority (P1 first)</option>
+          <option value="prioDesc">Sort: priority (P5 first)</option>
+        </select>
+        <button onclick="Jobs.clearAll()" style="background:linear-gradient(90deg,var(--danger),#dc2626);">Clear all</button>
       </div>
+    </div>
 
-      <div class="tableWrap" style="margin-top:10px;">
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Applications</h3>
+      <div class="tableWrap">
         <table id="jobsTable"></table>
       </div>
     </div>
   </div>
 
 <script>
-  // Theme sync
-  const theme = localStorage.getItem("theme");
-  if (theme){
-    try{ document.documentElement.setAttribute("data-theme", JSON.parse(theme)); } catch {}
-  }
-
   const LS = {
-    get(key, fallback){
-      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-      catch { return fallback; }
-    },
-    set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+    get(k, fb){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch{ return fb; } },
+    set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
   };
 
-  function uuid(){
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
-  }
+  // Theme + menu
+  (function(){
+    const darkToggle = document.getElementById("darkToggle");
+    const savedTheme = LS.get("theme","light");
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    darkToggle.checked = savedTheme === "dark";
+    darkToggle.addEventListener("change", ()=>{
+      const t = darkToggle.checked ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+      LS.set("theme", t);
+    });
 
-  function localNowISO(){
-    const d = new Date();
-    const yr = d.getFullYear();
-    const mo = String(d.getMonth()+1).padStart(2,'0');
-    const da = String(d.getDate()).padStart(2,'0');
-    const hh = String(d.getHours()).padStart(2,'0');
-    const mm = String(d.getMinutes()).padStart(2,'0');
-    return { date:`${yr}-${mo}-${da}`, time:`${hh}:${mm}` };
+    const btn = document.getElementById("menuBtn");
+    const menu = document.getElementById("menu");
+    btn.addEventListener("click",(e)=>{ e.stopPropagation(); menu.classList.toggle("open"); });
+    document.addEventListener("click", ()=> menu.classList.remove("open"));
+  })();
+
+  function localDateKey(d=new Date()){
+    const yr=d.getFullYear();
+    const mo=String(d.getMonth()+1).padStart(2,'0');
+    const da=String(d.getDate()).padStart(2,'0');
+    return `${yr}-${mo}-${da}`;
   }
 
   const Jobs = (() => {
-    let rows = LS.get("jobs_v1", []);
+    let items = LS.get("jobs_apps_v1", []);
 
-    function persist(){ LS.set("jobs_v1", rows); }
+    function persist(){ LS.set("jobs_apps_v1", items); }
 
     function add(){
       const company = document.getElementById("company").value.trim();
       const role = document.getElementById("role").value.trim();
-      let date = document.getElementById("date").value;
-      let time = document.getElementById("time").value;
-      const priority = parseInt(document.getElementById("priority").value, 10);
+      const date = document.getElementById("date").value || localDateKey(new Date());
+      const time = document.getElementById("time").value || "09:00";
+      const priority = Number(document.getElementById("priority").value);
 
-      if (!company || !role) return alert("Company + role required.");
+      if (!company) return alert("Company required.");
+      if (!role) return alert("Role required.");
 
-      if (!date || !time){
-        const now = localNowISO();
-        date = date || now.date;
-        time = time || now.time;
-      }
-
-      // store as ISO-like local string
-      const ts = new Date(`${date}T${time}:00`).getTime();
-
-      rows.push({ id: uuid(), company, role, date, time, ts, priority });
+      const ts = new Date(date + "T" + time + ":00").getTime();
+      items.push({ id: crypto.randomUUID ? crypto.randomUUID() : ("j"+Date.now()), company, role, date, time, priority, ts });
       persist();
 
       document.getElementById("company").value = "";
@@ -139,52 +200,48 @@
     }
 
     function remove(id){
-      rows = rows.filter(r => r.id !== id);
+      items = items.filter(x => x.id !== id);
       persist();
       render();
     }
 
-    function sorted(){
-      const mode = document.getElementById("sort").value;
-      const arr = [...rows];
-
-      if (mode === "time_desc") arr.sort((a,b)=> b.ts - a.ts);
-      if (mode === "time_asc") arr.sort((a,b)=> a.ts - b.ts);
-      if (mode === "prio_desc") arr.sort((a,b)=> (b.priority - a.priority) || (b.ts - a.ts));
-      if (mode === "prio_asc") arr.sort((a,b)=> (a.priority - b.priority) || (b.ts - a.ts));
-
-      return arr;
+    function clearAll(){
+      if (!confirm("Delete all job entries?")) return;
+      items = [];
+      persist();
+      render();
     }
 
     function render(){
-      const table = document.getElementById("jobsTable");
-      const data = sorted();
+      const sortBy = document.getElementById("sortBy").value;
 
-      table.innerHTML = `
+      let rows = [...items];
+      if (sortBy === "dateDesc") rows.sort((a,b)=> b.ts - a.ts);
+      if (sortBy === "dateAsc") rows.sort((a,b)=> a.ts - b.ts);
+      if (sortBy === "prioAsc") rows.sort((a,b)=> a.priority - b.priority || b.ts - a.ts);
+      if (sortBy === "prioDesc") rows.sort((a,b)=> b.priority - a.priority || b.ts - a.ts);
+
+      const t = document.getElementById("jobsTable");
+      t.innerHTML = `
         <thead>
           <tr>
-            <th>Company</th>
-            <th>Role</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Priority</th>
-            <th></th>
+            <th>Date</th><th>Time</th><th>Company</th><th>Role</th><th>Priority</th><th></th>
           </tr>
         </thead>
         <tbody>
-          ${data.map(r => `
+          ${rows.map(r => `
             <tr>
-              <td>${escapeHtml(r.company)}</td>
-              <td>${escapeHtml(r.role)}</td>
               <td>${r.date}</td>
               <td>${r.time}</td>
-              <td>${r.priority}</td>
+              <td>${escapeHtml(r.company)}</td>
+              <td>${escapeHtml(r.role)}</td>
+              <td>P${r.priority}</td>
               <td style="text-align:right;">
                 <button class="xBtn" title="Delete" onclick="Jobs.remove('${r.id}')">×</button>
               </td>
             </tr>
           `).join("")}
-          ${data.length === 0 ? `<tr><td colspan="6" class="muted">No job applications yet.</td></tr>` : ""}
+          ${rows.length===0 ? `<tr><td colspan="6" class="muted">No applications yet.</td></tr>` : ""}
         </tbody>
       `;
     }
@@ -193,7 +250,7 @@
       return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    return { add, remove, render };
+    return { add, remove, render, clearAll };
   })();
 
   Jobs.render();
