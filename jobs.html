@@ -66,17 +66,18 @@
     background:linear-gradient(90deg,var(--danger),#dc2626); font-size:18px;
   }
 
-  .grid5{ display:grid; grid-template-columns: 2fr 1.4fr 1fr 1fr 0.9fr; gap:10px; }
+  /* UPDATED GRID: now includes phone + email */
+  .grid7{ display:grid; grid-template-columns: 2fr 1.4fr 1.2fr 1.6fr 1fr 1fr 0.9fr; gap:10px; }
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
 
   .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
-  table{ width:100%; border-collapse:collapse; min-width: 980px; }
+  table{ width:100%; border-collapse:collapse; min-width: 1100px; }
   th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
   th{ color:var(--muted); font-size:12px; }
 
   @media (max-width: 720px){
-    /* This is the key: multi-row layout on phone */
-    .grid5{ grid-template-columns: 1fr 1fr; }
+    /* multi-row layout on phone */
+    .grid7{ grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -105,9 +106,11 @@
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Add application</h3>
 
-      <div class="grid5">
+      <div class="grid7">
         <input id="company" placeholder="Company" />
         <input id="role" placeholder="Role" />
+        <input id="phone" placeholder="Phone (optional)" />
+        <input id="email" placeholder="Email (optional)" />
         <input id="date" type="date" />
         <input id="time" type="time" />
         <select id="priority">
@@ -183,6 +186,9 @@
     function add(){
       const company = document.getElementById("company").value.trim();
       const role = document.getElementById("role").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+
       const date = document.getElementById("date").value || localDateKey(new Date());
       const time = document.getElementById("time").value || "09:00";
       const priority = Number(document.getElementById("priority").value);
@@ -191,11 +197,16 @@
       if (!role) return alert("Role required.");
 
       const ts = new Date(date + "T" + time + ":00").getTime();
-      items.push({ id: crypto.randomUUID ? crypto.randomUUID() : ("j"+Date.now()), company, role, date, time, priority, ts });
+      items.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : ("j"+Date.now()),
+        company, role, phone, email, date, time, priority, ts
+      });
       persist();
 
       document.getElementById("company").value = "";
       document.getElementById("role").value = "";
+      document.getElementById("phone").value = "";
+      document.getElementById("email").value = "";
       render();
     }
 
@@ -225,7 +236,7 @@
       t.innerHTML = `
         <thead>
           <tr>
-            <th>Date</th><th>Time</th><th>Company</th><th>Role</th><th>Priority</th><th></th>
+            <th>Date</th><th>Time</th><th>Company</th><th>Role</th><th>Phone</th><th>Email</th><th>Priority</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -235,13 +246,15 @@
               <td>${r.time}</td>
               <td>${escapeHtml(r.company)}</td>
               <td>${escapeHtml(r.role)}</td>
+              <td>${r.phone ? escapeHtml(r.phone) : "-"}</td>
+              <td>${r.email ? escapeHtml(r.email) : "-"}</td>
               <td>P${r.priority}</td>
               <td style="text-align:right;">
                 <button class="xBtn" title="Delete" onclick="Jobs.remove('${r.id}')">×</button>
               </td>
             </tr>
           `).join("")}
-          ${rows.length===0 ? `<tr><td colspan="6" class="muted">No applications yet.</td></tr>` : ""}
+          ${rows.length===0 ? `<tr><td colspan="8" class="muted">No applications yet.</td></tr>` : ""}
         </tbody>
       `;
     }
