@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Quest Tracker</title>
 
-<!-- =========================
-  STYLE (UI THEME + LAYOUT)
-========================= -->
 <style>
   :root{
     --bg:#f3f4f6;
@@ -52,7 +49,7 @@
     color:var(--text);
   }
 
-  /* ---------- Sticky Top Bar ---------- */
+  /* Sticky top bar */
   .topbar{
     position: sticky;
     top: 0;
@@ -107,7 +104,7 @@
     border-color: rgba(255,255,255,0.45);
   }
 
-  /* ---------- TOP RIGHT HUD (menu + level + gp) ---------- */
+  /* TOP RIGHT HUD */
   .hud{
     display:flex;
     flex-direction:column;
@@ -134,7 +131,7 @@
     position:absolute;
     right:0;
     top:48px;
-    width: 220px;
+    width: 230px;
     background: var(--card);
     color: var(--text);
     border:1px solid var(--line);
@@ -174,7 +171,7 @@
     accent-color: var(--accent);
   }
 
-  /* Level row */
+  /* Level row (desktop) */
   .lvlRow{
     display:flex;
     align-items:center;
@@ -234,13 +231,12 @@
   }
   .pill small{ opacity:0.9; font-weight:800; }
 
-  /* ---------- Page ---------- */
+  /* Page */
   .page{
     max-width: 1100px;
     margin: 0 auto;
     padding: 16px;
   }
-
   .card{
     background: var(--card);
     border:1px solid var(--line);
@@ -249,16 +245,14 @@
     padding: 14px;
     margin-bottom: 14px;
   }
-
   h2{
     margin:0 0 10px 0;
     font-size: 16px;
     letter-spacing: 0.2px;
   }
-
   .muted{ color: var(--muted); font-size: 12px; }
 
-  /* ---------- Shared row layout ---------- */
+  /* Shared row layout */
   .row{
     display:flex;
     align-items:flex-start;
@@ -292,7 +286,6 @@
     text-decoration: line-through;
     opacity: 0.55;
   }
-
   .right{
     display:flex;
     gap:8px;
@@ -310,7 +303,7 @@
     background: linear-gradient(90deg,var(--accent),#16a34a);
   }
 
-  /* ---------- 1) Delete buttons as small "x" ---------- */
+  /* X delete button */
   .xBtn{
     width: 34px;
     height: 34px;
@@ -429,22 +422,20 @@
   .dayCell{ width: 90px; text-align:center; }
   .dayCell input{ width: 22px; height: 22px; accent-color: var(--accent); }
 
-  /* ---------- 2) smaller level bar on phone ---------- */
+  /* PHONE: actually smaller level bar */
   @media (max-width: 720px){
-    .lvlRow, .gpRow{ width: 250px; }
-    .barWrap{ height: 10px; }     /* smaller bar */
-    .barText{ font-size: 11px; }  /* smaller text */
-    .lvlTag{ padding: 6px 8px; }  /* smaller tag */
-    .menu{ top: 54px; width: 250px; }
+    .lvlRow, .gpRow{ width: 210px; }     /* smaller overall */
+    .lvlTag{ padding: 5px 7px; font-size: 11px; }
+    .barWrap{ height: 8px; }             /* smaller bar */
+    .barText{ font-size: 10px; }
+    .menu{ top: 54px; width: 210px; }    /* match HUD width */
+    .tabBtn{ padding: 9px 10px; }
   }
 </style>
 </head>
 
 <body>
 
-<!-- =========================
-  TOP BAR (TABS + HUD)
-========================= -->
 <div class="topbar">
   <div class="topbarInner">
     <div class="leftTop">
@@ -465,6 +456,7 @@
             <input class="switch" type="checkbox" id="darkToggle">
           </div>
           <a class="menuLink" href="./finances.html">Finances</a>
+          <a class="menuLink" href="./jobs.html">Jobs</a>
         </div>
       </div>
 
@@ -481,16 +473,14 @@
   </div>
 </div>
 
-<!-- =========================
-  PAGES
-========================= -->
 <div class="page">
 
-  <!-- ===== TASKS ===== -->
+  <!-- TASKS -->
   <div id="viewTasks">
     <div class="card">
       <h2>Tasks</h2>
       <div id="tasksByCat"></div>
+      <div class="muted">Completed tasks disappear after 5 minutes.</div>
     </div>
 
     <div class="card">
@@ -513,7 +503,7 @@
     </div>
   </div>
 
-  <!-- ===== DAILY ===== -->
+  <!-- DAILY -->
   <div id="viewDaily" style="display:none;">
     <div class="card">
       <h2>Weekly Daily Tasks</h2>
@@ -532,11 +522,12 @@
     </div>
   </div>
 
-  <!-- ===== REWARDS ===== -->
+  <!-- REWARDS -->
   <div id="viewRewards" style="display:none;">
     <div class="card">
       <h2>Rewards</h2>
       <div id="rewardsList"></div>
+      <div class="muted">Rewards glow when you can afford them.</div>
     </div>
 
     <div class="card">
@@ -551,12 +542,9 @@
 
 </div>
 
-<!-- =========================
-  SCRIPT (FEATURE BLOCKS)
-========================= -->
 <script>
 /* =========================================================
-  BLOCK 0 — STORAGE + UTILITIES (DO NOT MIX APP LOGIC HERE)
+  BLOCK 0 — STORAGE + UTILITIES
 ========================================================= */
 const LS = {
   get(key, fallback){
@@ -579,7 +567,6 @@ const Economy = (() => {
   let earnedXP = LS.get("earnedXP", 0);
 
   function xpToNext(level){ return 50 + (level - 1) * 25; }
-
   function computeLevel(xp){
     let level = 1;
     let rem = xp;
@@ -593,20 +580,16 @@ const Economy = (() => {
 
   function add(pts){
     pts = Number(pts) || 0;
-    gp += pts;
-    earnedXP += pts;
-    gp = clamp0(gp);
-    earnedXP = clamp0(earnedXP);
+    gp = clamp0(gp + pts);
+    earnedXP = clamp0(earnedXP + pts);
     persist();
     UI.renderHeader();
   }
 
   function remove(pts){
     pts = Number(pts) || 0;
-    gp -= pts;
-    earnedXP -= pts;
-    gp = clamp0(gp);
-    earnedXP = clamp0(earnedXP);
+    gp = clamp0(gp - pts);
+    earnedXP = clamp0(earnedXP - pts);
     persist();
     UI.renderHeader();
   }
@@ -614,8 +597,7 @@ const Economy = (() => {
   function spend(cost){
     cost = Number(cost) || 0;
     if (gp < cost) return false;
-    gp -= cost;
-    gp = clamp0(gp);
+    gp = clamp0(gp - cost);
     persist();
     UI.renderHeader();
     return true;
@@ -637,27 +619,23 @@ const Economy = (() => {
 ========================================================= */
 const Theme = (() => {
   const darkToggle = document.getElementById("darkToggle");
-
   function apply(theme){
     document.documentElement.setAttribute("data-theme", theme);
     LS.set("theme", theme);
     darkToggle.checked = (theme === "dark");
   }
-
   function init(){
     apply(LS.get("theme", "light"));
     darkToggle.addEventListener("change", () => {
       apply(darkToggle.checked ? "dark" : "light");
     });
   }
-
-  return { init, apply };
+  return { init };
 })();
 
 const Menu = (() => {
   const menuBtn = document.getElementById("menuBtn");
   const menu = document.getElementById("menu");
-
   function setOpen(open){
     if (open){
       menu.classList.add("open");
@@ -667,7 +645,6 @@ const Menu = (() => {
       menuBtn.setAttribute("aria-expanded","false");
     }
   }
-
   function init(){
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -675,16 +652,14 @@ const Menu = (() => {
     });
     document.addEventListener("click", () => setOpen(false));
   }
-
-  return { init, setOpen };
+  return { init };
 })();
 
 /* =========================================================
-  BLOCK 3 — TABS (TASKS / DAILY / REWARDS)
+  BLOCK 3 — TABS
 ========================================================= */
 const Tabs = (() => {
   let current = LS.get("tab", "tasks");
-
   function set(tab){
     current = tab;
     LS.set("tab", tab);
@@ -697,41 +672,34 @@ const Tabs = (() => {
     document.getElementById("tabDaily").classList.toggle("active", tab === "daily");
     document.getElementById("tabRewards").classList.toggle("active", tab === "rewards");
   }
-
   function init(){ set(current); }
-
   return { init, set };
 })();
 
 /* =========================================================
-  BLOCK 4 — UI RENDER (HEADER)
+  BLOCK 4 — UI (HEADER)
 ========================================================= */
 const UI = (() => {
   function renderHeader(){
     document.getElementById("gpVal").textContent = Economy.getGP();
-
     const lvl = Economy.computeLevel(Economy.getXP());
     document.getElementById("lvlTag").textContent = `LVL ${lvl.level}`;
     const pct = Math.max(0, Math.min(100, (lvl.inLevel / lvl.need) * 100));
     document.getElementById("barFill").style.width = pct.toFixed(1) + "%";
     document.getElementById("barText").textContent = `${lvl.inLevel}/${lvl.need}`;
   }
-
   return { renderHeader };
 })();
 
 /* =========================================================
   BLOCK 5 — TASKS + CATEGORIES
 ========================================================= */
-const TasksConfig = {
-  HIDE_AFTER_MS: 5 * 60 * 1000
-};
+const TasksConfig = { HIDE_AFTER_MS: 5 * 60 * 1000 };
 
 const Categories = (() => {
   let categories = LS.get("categories_v0", [{ id: "cat_general", name: "General" }]);
 
   function list(){ return categories; }
-
   function persist(){ LS.set("categories_v0", categories); }
 
   function add(){
@@ -761,11 +729,8 @@ const Categories = (() => {
 })();
 
 const Tasks = (() => {
-  let tasks = LS.get("tasks_v0", [
-    { id: uuid(), name: "Book Forklift Licence", pts: 5, done: false, catId: "cat_general", doneAt: null },
-    { id: uuid(), name: "Book Working at Heights", pts: 4, done: false, catId: "cat_general", doneAt: null },
-    { id: uuid(), name: "Book Confined Spaces", pts: 4, done: false, catId: "cat_general", doneAt: null }
-  ]);
+  // 2) EMPTY by default (user adds them)
+  let tasks = LS.get("tasks_v0", []);
 
   function persist(){ LS.set("tasks_v0", tasks); }
 
@@ -788,17 +753,14 @@ const Tasks = (() => {
   }
 
   function isHiddenByTimer(task){
-    if (!task.done) return false;
-    if (!task.doneAt) return false;
+    if (!task.done || !task.doneAt) return false;
     return (Date.now() - task.doneAt) >= TasksConfig.HIDE_AFTER_MS;
   }
 
   function scheduleAutoHide(task){
     if (!task.done || !task.doneAt) return;
-    const elapsed = Date.now() - task.doneAt;
-    const remaining = TasksConfig.HIDE_AFTER_MS - elapsed;
+    const remaining = TasksConfig.HIDE_AFTER_MS - (Date.now() - task.doneAt);
     if (remaining <= 0) return;
-
     setTimeout(() => {
       const t = tasks.find(x => x.id === task.id);
       if (t && t.done && isHiddenByTimer(t)) render();
@@ -824,12 +786,7 @@ const Tasks = (() => {
   function remove(taskId){
     const t = tasks.find(x => x.id === taskId);
     if (!t) return;
-
-    // reverse points if still done and not hidden yet
-    if (t.done){
-      Economy.remove(t.pts);
-    }
-
+    if (t.done) Economy.remove(t.pts);
     tasks = tasks.filter(x => x.id !== taskId);
     persist();
     render();
@@ -870,10 +827,8 @@ const Tasks = (() => {
       const title = document.createElement("div");
       title.className = "catTitle";
       title.textContent = cat.name;
-
       header.appendChild(title);
 
-      // Category delete (x)
       if (cat.id !== "cat_general"){
         const x = document.createElement("button");
         x.className = "xBtn";
@@ -946,11 +901,8 @@ const Tasks = (() => {
   BLOCK 6 — REWARDS
 ========================================================= */
 const Rewards = (() => {
-  let rewards = LS.get("rewards_v0", [
-    { id: uuid(), name: "Coffee / snack", cost: 10 },
-    { id: uuid(), name: "Fun outing", cost: 25 },
-    { id: uuid(), name: "Big reward", cost: 50 }
-  ]);
+  // 2) EMPTY by default (user adds them)
+  let rewards = LS.get("rewards_v0", []);
 
   function persist(){ LS.set("rewards_v0", rewards); }
 
@@ -987,6 +939,14 @@ const Rewards = (() => {
   function render(){
     const host = document.getElementById("rewardsList");
     host.innerHTML = "";
+
+    if (rewards.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "muted";
+      empty.textContent = "No rewards yet. Add one below.";
+      host.appendChild(empty);
+      return;
+    }
 
     rewards.forEach(r => {
       const row = document.createElement("div");
@@ -1029,13 +989,10 @@ const Rewards = (() => {
 })();
 
 /* =========================================================
-  BLOCK 7 — DAILY
+  BLOCK 7 — DAILY (kept minimal defaults)
 ========================================================= */
 const Daily = (() => {
-  let rows = LS.get("dailyRows_v0", [
-    { id: uuid(), name: "Gym", pts: 5 },
-    { id: uuid(), name: "30 min learning", pts: 4 }
-  ]);
+  let rows = LS.get("dailyRows_v0", []);
   let checks = LS.get("dailyChecks_v0", {});
 
   function startOfWeekMonday(d){
@@ -1081,10 +1038,10 @@ const Daily = (() => {
     document.getElementById("newDailyName").value = "";
     document.getElementById("newDailyPts").value = "";
     render();
+    Rewards.render();
   }
 
   function removeRow(rowId){
-    // Reverse points for checked boxes in this week
     ensureWeek();
     const row = rows.find(r => r.id === rowId);
     const week = checks[weekKey][rowId] || {};
@@ -1098,8 +1055,8 @@ const Daily = (() => {
     persistRows();
     persistChecks();
 
-    Rewards.render();
     render();
+    Rewards.render();
   }
 
   function toggle(rowId, dayIndex, nowChecked){
@@ -1136,6 +1093,14 @@ const Daily = (() => {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
+
+    if (rows.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="10" class="muted">No daily rows yet. Add one below.</td>`;
+      tbody.appendChild(tr);
+      table.appendChild(tbody);
+      return;
+    }
 
     rows.forEach(row => {
       const tr = document.createElement("tr");
@@ -1186,13 +1151,12 @@ const Daily = (() => {
 })();
 
 /* =========================================================
-  BLOCK 8 — APP INIT (ONE PLACE)
+  APP INIT
 ========================================================= */
 (function AppInit(){
   Theme.init();
   Menu.init();
   Tabs.init();
-
   UI.renderHeader();
   Tasks.renderCategorySelect();
   Tasks.render();
