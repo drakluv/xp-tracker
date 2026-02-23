@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Statistics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{ --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --line:rgba(0,0,0,0.10); }
+  [data-theme="dark"]{ --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --muted:#9ca3af; --line:rgba(255,255,255,0.12); }
+  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+  .top{ position:sticky; top:0; z-index:9; padding:14px; background:linear-gradient(90deg,#7c3aed,#2563eb); color:#fff; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; }
+  .row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .half{ flex:1; min-width:320px; }
+  a{ color:#fff; font-weight:900; text-decoration:none; }
+  .muted{ color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div style="font-weight:900;">Statistics (This Week)</div>
+      <a href="./index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="muted">Week runs Monday → Sunday using your phone’s local time.</div>
+    </div>
+
+    <div class="row">
+      <div class="card half">
+        <h3 style="margin:0 0 10px 0;">Tasks completed by category</h3>
+        <canvas id="catChart" height="140"></canvas>
+      </div>
+      <div class="card half">
+        <h3 style="margin:0 0 10px 0;">Gym frequency (daily checks)</h3>
+        <canvas id="gymChart" height="140"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">GP earned per day (Daily + Tasks)</h3>
+      <canvas id="gpChart" height="110"></canvas>
+    </div>
+  </div>
+
+<script>
+  // Theme sync
+  const theme = localStorage.getItem("theme");
+  if (theme){
+    try{ document.documentElement.setAttribute("data-theme", JSON.parse(theme)); } catch {}
+  }
+
+  const LS = {
+    get(key, fallback){
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch { return fallback; }
+    }
+  };
+
+  function localDateKey(d){
+    const yr = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const da = String(d.getDate()).padStart(2,'0');
+    return `${yr}-${mo}-${da}`;
+  }
+  function startOfWeekMonday(d){
+    const x = new Date(d);
+    const day = x.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    x.setDate(x.getDate() + diff);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+  function dayIndexMon0(d){ return (d.getDay() === 0) ? 6 : (d.getDay()-1); }
+
+  const now = new Date();
+  const weekStart = startOfWeekMonday(now);
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 7);
+
+  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const dayKeys = [...Array(7)].map((_,i)=> {
+    const d = new Date(weekStart); d.setDate(d.getDate()+i);
+    return localDateKey(d);
+  });
+
+  // Event log (tasks + daily)
+  const events = LS.get("eventLog_v1", []);
+
+  // Categories list for name lookup
+  const categories = LS.get("categories_v0", [{id:"cat_general", name:"General"}]);
+  const catName = (id) => (categories.find(c=>c.id===id)?.name || "Unknown");
+
+  // Daily rows + checks for gym
+  const dailyRows = LS.get("dailyRows_v0", []);
+  const dailyChecks = LS.get("dailyChecks_v0", {});
+  const weekKey = localDateKey(weekStart);
+  const weekGrid = dailyChecks[weekKey] || {};
+
+  // ---- 1) Tasks completed by category (net: complete - undo)
+  const catCounts = {};
+  events.forEach(e => {
+    if (e.ts < weekStart.getTime() || e.ts >= weekEnd.getTime()) return;
+    if (e.kind !== "task") return;
+    const catId = e.meta?.catId || "cat_general";
+    const k = catName(catId);
+    catCounts[k] = catCounts[k] || 0;
+    if (e.action === "complete") catCounts[k] += 1;
+    if (e.action === "undo") catCounts[k] -= 1;
+  });
+  // clamp negatives
+  Object.keys(catCounts).forEach(k => { if (catCounts[k] < 0) catCounts[k] = 0; });
+
+  // ---- 2) Gym frequency per day (based on dailyChecks for rows with isGym)
+  const gymRows = dailyRows.filter(r => r.isGym);
+  const gymPerDay = [0,0,0,0,0,0,0];
+  if (gymRows.length > 0){
+    gymRows.forEach(r => {
+      const grid = weekGrid[r.id] || {};
+      for (let i=0;i<7;i++){
+        if (grid[i]) gymPerDay[i] += 1;
+      }
+    });
+  }
+
+  // ---- 3) GP earned per day (net from event log)
+  // We use eventLog gp adds/removes/spends; chart uses adds only (earned).
+  const gpEarned = [0,0,0,0,0,0,0];
+  events.forEach(e => {
+    if (e.ts < weekStart.getTime() || e.ts >= weekEnd.getTime()) return;
+    const d = new Date(e.ts);
+    const i = dayIndexMon0(d);
+    // count earnings: daily checks + task gp adds
+    if (e.kind === "daily" && e.action === "check") gpEarned[i] += (e.gp || 0);
+    if (e.kind === "gp" && e.action === "add") gpEarned[i] += (e.gp || 0);
+    if (e.kind === "task" && e.action === "complete") gpEarned[i] += (e.gp || 0);
+    // If you want net, subtract undo/uncheck; currently this is "earned", not net.
+  });
+
+  // ---- Charts
+  const catLabels = Object.keys(catCounts);
+  const catData = catLabels.map(k => catCounts[k]);
+
+  new Chart(document.getElementById("catChart"), {
+    type: "bar",
+    data: { labels: catLabels.length ? catLabels : ["(none)"], datasets: [{ label: "Completed", data: catLabels.length ? catData : [0] }] },
+    options: { responsive: true, plugins: { legend: { display:false } } }
+  });
+
+  new Chart(document.getElementById("gymChart"), {
+    type: "bar",
+    data: { labels: days, datasets: [{ label: "Gym", data: gymPerDay }] },
+    options: { responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+  });
+
+  new Chart(document.getElementById("gpChart"), {
+    type: "line",
+    data: { labels: days, datasets: [{ label: "GP earned", data: gpEarned, tension: 0.25 }] },
+    options: { responsive:true, scales:{ y:{ beginAtZero:true } } }
+  });
+</script>
+</body>
+</html>
