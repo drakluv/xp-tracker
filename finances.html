@@ -4,19 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Finances</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  :root{ --bg:#f3f4f6; --card:#fff; --text:#111827; --line:rgba(0,0,0,0.10); --primary:#2563eb; }
-  [data-theme="dark"]{ --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --line:rgba(255,255,255,0.12); }
+  :root{ --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --line:rgba(0,0,0,0.10); --accent:#22c55e; --danger:#ef4444; }
+  [data-theme="dark"]{ --bg:#0b1220; --card:#111a2e; --text:#e5e7eb; --muted:#9ca3af; --line:rgba(255,255,255,0.12); }
   body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
-  .top{ position:sticky; top:0; z-index:9; padding:14px; background:linear-gradient(90deg,#7c3aed,var(--primary)); color:#fff; }
-  .wrap{ max-width:900px; margin:0 auto; padding:16px; }
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .top{ position:sticky; top:0; z-index:9; padding:14px; background:linear-gradient(90deg,#7c3aed,#2563eb); color:#fff; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; }
   a{ color:#fff; font-weight:900; text-decoration:none; }
+  input, select{ width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--text); outline:none; }
+  button{ padding:10px 12px; border:none; border-radius:12px; cursor:pointer; font-weight:900; color:#fff; background:linear-gradient(90deg,var(--accent),#16a34a); }
+  .xBtn{ width:34px; height:34px; border-radius:999px; padding:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(90deg,var(--danger),#dc2626); font-size:18px; }
+  .grid{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; }
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .muted{ color:var(--muted); font-size:12px; }
+  .tableWrap{ width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+  table{ width:100%; border-collapse: collapse; min-width: 900px; }
+  th, td{ border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+  th{ color:var(--muted); font-size:12px; }
 </style>
 </head>
 <body>
   <div class="top">
-    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;">
       <div style="font-weight:900;">Finances</div>
       <a href="./index.html">← Back</a>
     </div>
@@ -24,23 +35,251 @@
 
   <div class="wrap">
     <div class="card">
-      <h2 style="margin:0 0 10px 0;">Placeholder</h2>
-      <p style="margin:0;">
-        This is your Finances page. Next step is adding:
-        income, expenses, weekly budget, and a simple net balance.
-      </p>
+      <h3 style="margin:0 0 10px 0;">Money you have (starting cash)</h3>
+      <div class="grid2">
+        <input id="startingCash" type="number" placeholder="e.g. 1200" />
+        <button onclick="Finance.saveStarting()">Save</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">This is your baseline. Balance = starting cash + income - outgoing.</div>
+      <div style="margin-top:10px; font-weight:900;">Current balance: <span id="balance">$0</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Add entry</h3>
+      <div class="grid">
+        <input id="desc" placeholder="Description (rent, wage, food...)" />
+        <input id="amount" type="number" placeholder="Amount" />
+        <select id="type">
+          <option value="income">Income</option>
+          <option value="outgoing">Outgoing</option>
+        </select>
+        <input id="date" type="date" />
+      </div>
+      <div style="margin-top:10px;">
+        <button onclick="Finance.add()">Add</button>
+      </div>
+    </div>
+
+    <div class="row" style="display:flex; gap:14px; flex-wrap:wrap;">
+      <div class="card" style="flex:1; min-width:320px;">
+        <h3 style="margin:0 0 10px 0;">This week: income vs outgoing</h3>
+        <canvas id="weekBar" height="140"></canvas>
+      </div>
+      <div class="card" style="flex:1; min-width:320px;">
+        <h3 style="margin:0 0 10px 0;">Balance trend (last 30 days)</h3>
+        <canvas id="balanceLine" height="140"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Entries</h3>
+      <div class="tableWrap">
+        <table id="finTable"></table>
+      </div>
     </div>
   </div>
 
 <script>
-  // keep darkmode consistent between pages
+  // Theme sync
   const theme = localStorage.getItem("theme");
-  if(theme){
-    try{
-      const t = JSON.parse(theme);
-      document.documentElement.setAttribute("data-theme", t);
-    }catch{}
+  if (theme){
+    try{ document.documentElement.setAttribute("data-theme", JSON.parse(theme)); } catch {}
   }
+
+  const LS = {
+    get(key, fallback){
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch { return fallback; }
+    },
+    set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+  };
+
+  function uuid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+  }
+
+  function localDateKey(d=new Date()){
+    const yr = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const da = String(d.getDate()).padStart(2,'0');
+    return `${yr}-${mo}-${da}`;
+  }
+
+  function startOfWeekMonday(d){
+    const x = new Date(d);
+    const day = x.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    x.setDate(x.getDate() + diff);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+
+  const Finance = (() => {
+    let starting = LS.get("fin_startingCash_v1", 0);
+    let entries = LS.get("fin_entries_v1", []); // {id, date, type, amount, desc, ts}
+
+    let weekBarChart = null;
+    let balanceLineChart = null;
+
+    function persist(){
+      LS.set("fin_startingCash_v1", starting);
+      LS.set("fin_entries_v1", entries);
+    }
+
+    function saveStarting(){
+      const v = Number(document.getElementById("startingCash").value);
+      if (Number.isNaN(v)) return alert("Enter a number.");
+      starting = v;
+      persist();
+      renderAll();
+    }
+
+    function add(){
+      const desc = document.getElementById("desc").value.trim();
+      const amount = Number(document.getElementById("amount").value);
+      const type = document.getElementById("type").value;
+      const date = document.getElementById("date").value || localDateKey(new Date());
+
+      if (!desc) return alert("Add a description.");
+      if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
+
+      const ts = new Date(date + "T12:00:00").getTime();
+      entries.push({ id: uuid(), date, type, amount, desc, ts });
+      entries.sort((a,b)=> a.ts - b.ts);
+      persist();
+
+      document.getElementById("desc").value = "";
+      document.getElementById("amount").value = "";
+      renderAll();
+    }
+
+    function remove(id){
+      entries = entries.filter(e => e.id !== id);
+      persist();
+      renderAll();
+    }
+
+    function computeBalance(){
+      let bal = Number(starting) || 0;
+      for (const e of entries){
+        if (e.type === "income") bal += e.amount;
+        if (e.type === "outgoing") bal -= e.amount;
+      }
+      return bal;
+    }
+
+    function renderTable(){
+      const t = document.getElementById("finTable");
+      const rows = [...entries].sort((a,b)=> b.ts - a.ts);
+
+      t.innerHTML = `
+        <thead>
+          <tr>
+            <th>Date</th><th>Type</th><th>Amount</th><th>Description</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(e => `
+            <tr>
+              <td>${e.date}</td>
+              <td>${e.type}</td>
+              <td>${e.type==="outgoing" ? "-" : "+"}$${e.amount.toFixed(2)}</td>
+              <td>${escapeHtml(e.desc)}</td>
+              <td style="text-align:right;">
+                <button class="xBtn" title="Delete" onclick="Finance.remove('${e.id}')">×</button>
+              </td>
+            </tr>
+          `).join("")}
+          ${rows.length===0 ? `<tr><td colspan="5" class="muted">No entries yet.</td></tr>` : ""}
+        </tbody>
+      `;
+    }
+
+    function renderCharts(){
+      const now = new Date();
+      const ws = startOfWeekMonday(now);
+      const we = new Date(ws); we.setDate(we.getDate()+7);
+
+      let incomeWeek = 0, outgoingWeek = 0;
+      for (const e of entries){
+        if (e.ts >= ws.getTime() && e.ts < we.getTime()){
+          if (e.type === "income") incomeWeek += e.amount;
+          if (e.type === "outgoing") outgoingWeek += e.amount;
+        }
+      }
+
+      const weekCtx = document.getElementById("weekBar");
+      if (weekBarChart) weekBarChart.destroy();
+      weekBarChart = new Chart(weekCtx, {
+        type:"bar",
+        data:{
+          labels:["This week"],
+          datasets:[
+            { label:"Income", data:[incomeWeek] },
+            { label:"Outgoing", data:[outgoingWeek] }
+          ]
+        },
+        options:{ responsive:true }
+      });
+
+      // Balance trend last 30 days
+      const days = [];
+      const balances = [];
+      const start = new Date(); start.setDate(start.getDate()-29);
+      start.setHours(0,0,0,0);
+
+      // build daily net map
+      const netByDay = {};
+      for (const e of entries){
+        const k = e.date;
+        netByDay[k] = netByDay[k] || 0;
+        netByDay[k] += (e.type === "income") ? e.amount : -e.amount;
+      }
+
+      // compute cumulative from starting up to each day
+      // first compute baseline = starting + all nets before start date
+      let base = Number(starting) || 0;
+      for (const e of entries){
+        const d = new Date(e.date + "T12:00:00");
+        if (d < start){
+          base += (e.type === "income") ? e.amount : -e.amount;
+        }
+      }
+
+      let running = base;
+      for (let i=0;i<30;i++){
+        const d = new Date(start); d.setDate(d.getDate()+i);
+        const k = localDateKey(d);
+        days.push(k.slice(5)); // MM-DD
+        running += (netByDay[k] || 0);
+        balances.push(running);
+      }
+
+      const balCtx = document.getElementById("balanceLine");
+      if (balanceLineChart) balanceLineChart.destroy();
+      balanceLineChart = new Chart(balCtx, {
+        type:"line",
+        data:{ labels:days, datasets:[{ label:"Balance", data:balances, tension:0.25 }] },
+        options:{ responsive:true }
+      });
+    }
+
+    function renderAll(){
+      document.getElementById("startingCash").value = starting;
+      document.getElementById("balance").textContent = "$" + computeBalance().toFixed(2);
+      renderTable();
+      renderCharts();
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    return { saveStarting, add, remove, renderAll };
+  })();
+
+  Finance.renderAll();
 </script>
 </body>
 </html>
