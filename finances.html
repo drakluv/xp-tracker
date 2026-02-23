@@ -122,7 +122,14 @@
      PAGE
   ========================= */
   .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow: var(--shadow); }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:14px;
+    box-shadow: var(--shadow);
+  }
   .muted{ color:var(--muted); font-size:12px; }
 
   input, select{
@@ -154,7 +161,6 @@
 
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
   .grid4{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; }
-  .gridCat{ display:grid; grid-template-columns: 2fr 1fr; gap:10px; }
 
   .row{ display:flex; gap:14px; flex-wrap:wrap; }
   .half{ flex:1; min-width:320px; }
@@ -165,12 +171,57 @@
   th{ color:var(--muted); font-size:12px; }
 
   /* =========================
+     COMPACT CATEGORY UI
+  ========================= */
+  .catCompact{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .catInputWrap{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex:1;
+    min-width: 240px;
+  }
+  .catInputWrap input{ flex:1; }
+  .chipRow{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background: rgba(0,0,0,0.03);
+    font-weight:900;
+    font-size:12px;
+  }
+  [data-theme="dark"] .chip{ background: rgba(255,255,255,0.06); }
+
+  .chipX{
+    border:none;
+    background: transparent;
+    color: var(--danger);
+    font-weight: 900;
+    cursor:pointer;
+    padding:0;
+    line-height:1;
+    font-size:16px;
+  }
+
+  /* =========================
      PHONE: add-entry becomes 2 rows
   ========================= */
   @media (max-width: 700px){
-    .grid4{
-      grid-template-columns: 1fr 1fr;
-    }
+    .grid4{ grid-template-columns: 1fr 1fr; }
     table{ min-width: 860px; }
   }
 </style>
@@ -201,30 +252,25 @@
 
   <div class="wrap">
 
-    <div class="card">
-      <h3 style="margin:0 0 10px 0;">Money you have (starting cash)</h3>
-      <div class="grid2">
-        <input id="startingCash" type="number" placeholder="e.g. 1200" />
-        <button onclick="Finance.saveStarting()">Save</button>
-      </div>
-      <div class="muted" style="margin-top:8px;">Balance = starting cash + income - outgoing.</div>
-      <div style="margin-top:10px; font-weight:900;">Current balance: <span id="balance">$0</span></div>
-    </div>
-
+    <!-- EXPENSE CATEGORIES (COMPACT) -->
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Expense categories</h3>
-      <div class="gridCat">
-        <input id="newCat" placeholder="Add category (e.g. Food)" />
-        <button onclick="FinanceCats.add()">Add</button>
+
+      <div class="catCompact">
+        <div class="catInputWrap">
+          <input id="newCat" placeholder="Add category (e.g. Food)" />
+          <button onclick="FinanceCats.add()">Add</button>
+        </div>
+        <div class="muted">Used only for outgoing entries.</div>
       </div>
-      <div id="catList" style="margin-top:10px;"></div>
-      <div class="muted" style="margin-top:8px;">You can only assign categories to outgoing entries.</div>
+
+      <div class="chipRow" id="catList"></div>
     </div>
 
+    <!-- ADD ENTRY -->
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Add entry</h3>
 
-      <!-- On phone this becomes 2 rows automatically -->
       <div class="grid4">
         <input id="desc" placeholder="Description (rent, wage, food...)" />
         <input id="amount" type="number" placeholder="Amount" />
@@ -244,6 +290,7 @@
       </div>
     </div>
 
+    <!-- CHARTS -->
     <div class="row">
       <div class="card half">
         <h3 style="margin:0 0 10px 0;">This week: income vs outgoing</h3>
@@ -255,11 +302,23 @@
       </div>
     </div>
 
+    <!-- ENTRIES TABLE -->
     <div class="card">
       <h3 style="margin:0 0 10px 0;">Entries</h3>
       <div class="tableWrap">
         <table id="finTable"></table>
       </div>
+    </div>
+
+    <!-- STARTING CASH MOVED TO BOTTOM -->
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Money you have (starting cash)</h3>
+      <div class="grid2">
+        <input id="startingCash" type="number" placeholder="e.g. 1200" />
+        <button onclick="Finance.saveStarting()">Save</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">Balance = starting cash + income - outgoing.</div>
+      <div style="margin-top:10px; font-weight:900;">Current balance: <span id="balance">$0</span></div>
     </div>
 
   </div>
@@ -331,7 +390,6 @@ function startOfWeekMonday(d){
 ========================================================= */
 const FinanceCats = (() => {
   let cats = LS.get("fin_cats_v1", ["Food", "Transport", "Rent", "Bills", "Other"]);
-
   function persist(){ LS.set("fin_cats_v1", cats); }
 
   function add(){
@@ -346,7 +404,6 @@ const FinanceCats = (() => {
   }
 
   function remove(name){
-    // stop removal if used by existing entries
     const entries = LS.get("fin_entries_v1", []);
     const used = entries.some(e => e.type === "outgoing" && e.category === name);
     if (used) return alert("Category is used by an entry. Change/delete those entries first.");
@@ -369,27 +426,21 @@ const FinanceCats = (() => {
     }
 
     cats.forEach(c => {
-      const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.alignItems = "center";
-      row.style.justifyContent = "space-between";
-      row.style.gap = "10px";
-      row.style.padding = "8px 0";
-      row.style.borderBottom = "1px solid var(--line)";
+      const chip = document.createElement("div");
+      chip.className = "chip";
 
-      const left = document.createElement("div");
-      left.style.fontWeight = "900";
-      left.textContent = c;
+      const label = document.createElement("span");
+      label.textContent = c;
 
       const x = document.createElement("button");
-      x.className = "xBtn";
+      x.className = "chipX";
       x.textContent = "×";
       x.title = "Delete category";
       x.addEventListener("click", () => remove(c));
 
-      row.appendChild(left);
-      row.appendChild(x);
-      host.appendChild(row);
+      chip.appendChild(label);
+      chip.appendChild(x);
+      host.appendChild(chip);
     });
   }
 
@@ -451,12 +502,10 @@ const Finance = (() => {
     if (Number.isNaN(amount) || amount <= 0) return alert("Amount must be > 0.");
 
     const ts = new Date(date + "T12:00:00").getTime();
-
     const entry = { id: uuid(), date, type, amount, desc, ts };
 
     if (type === "outgoing"){
-      const cat = document.getElementById("expenseCat").value || "Other";
-      entry.category = cat;
+      entry.category = document.getElementById("expenseCat").value || "Other";
     }
 
     entries.push(entry);
@@ -524,7 +573,6 @@ const Finance = (() => {
       }
     }
 
-    // weekly bar
     const weekCtx = document.getElementById("weekBar");
     if (weekBarChart) weekBarChart.destroy();
     weekBarChart = new Chart(weekCtx, {
@@ -539,7 +587,6 @@ const Finance = (() => {
       options:{ responsive:true }
     });
 
-    // balance trend last 30 days
     const days = [];
     const balances = [];
     const start = new Date(); start.setDate(start.getDate()-29);
